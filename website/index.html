@@ -144,24 +144,61 @@
     border-color: var(--accent);
   }
 
-  /* Figures */
+  /* Figures — picker + active card */
+  .fact-picker {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    margin-bottom: 14px;
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .fact-picker label {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+  }
+  .fact-picker select {
+    flex: 1;
+    min-width: 220px;
+    padding: 9px 12px;
+    font-size: 15px;
+    font-family: inherit;
+    color: var(--text);
+    background: var(--surface-subtle);
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'><path fill='%235A6876' d='M6 9L1 4h10z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 12px;
+    padding-right: 34px;
+  }
+  .fact-picker select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
   .fact-card {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 18px 20px;
+    padding: 20px 22px;
     margin-bottom: 16px;
     box-shadow: var(--shadow);
   }
-  .fact-card h3 {
-    font-size: 16px;
-    font-weight: 600;
-    margin: 0 0 6px;
-  }
   .fact-card .intro {
-    color: var(--text-muted);
-    font-size: 14px;
-    margin: 0 0 14px;
+    color: var(--text);
+    font-size: 15px;
+    margin: 0 0 16px;
+    line-height: 1.6;
   }
   .fact-plot { width: 100%; min-height: 280px; }
   .fact-placeholder {
@@ -482,17 +519,17 @@
   function renderHome() {
     if (!getApiKey()) { renderSetup(); return; }
     view.innerHTML = `
-      <section id="examples-section">
-        <h2>Eksempelspørsmål</h2>
-        <div id="examples-list"><div class="loading"><span class="spinner"></span> Laster eksempler …</div></div>
-      </section>
       <section id="facts-section">
         <h2>Tall og figurer</h2>
         <div id="facts-list"><div class="loading"><span class="spinner"></span> Laster figurer …</div></div>
       </section>
+      <section id="examples-section">
+        <h2>Andre eksempelspørsmål</h2>
+        <div id="examples-list"><div class="loading"><span class="spinner"></span> Laster eksempler …</div></div>
+      </section>
     `;
-    loadExamples();
     loadFacts();
+    loadExamples();
   }
 
   function maybeAuthError(msg) {
@@ -541,30 +578,47 @@
         container.innerHTML = '<div class="error">Ingen figurer tilgjengelig ennå.</div>';
         return;
       }
-      container.innerHTML = facts.map(f => `
-        <div class="fact-card" data-fact-id="${escapeHtml(f.id)}">
-          <h3>${escapeHtml(f.title || "")}</h3>
-          ${f.intro ? `<p class="intro">${escapeHtml(f.intro)}</p>` : ""}
-          <div class="fact-plot" id="plot-${escapeHtml(f.id)}"></div>
-          ${f.source ? `<div class="fact-source">
-            Kilde: ${escapeHtml(f.source.document || "")}${f.source.sheet ? ` — ark «${escapeHtml(f.source.sheet)}»` : ""}${f.source.page != null ? ", s. " + f.source.page : ""}
-            ${f.source.note ? `<div class="fact-source-note">${escapeHtml(f.source.note)}</div>` : ""}
-          </div>` : ""}
-          ${(f.questions && f.questions.length) ? `
-            <div class="fact-questions">
-              <div>Still et spørsmål om denne figuren:</div>
-              <ul>${f.questions.map(q => `
-                <li><button class="example-q" data-q="${escapeHtml(q)}">${escapeHtml(q)}</button></li>
-              `).join("")}</ul>
-            </div>` : ""}
+      container.innerHTML = `
+        <div class="fact-picker">
+          <label for="fact-select">Velg et tema:</label>
+          <select id="fact-select">
+            ${facts.map((f, i) => `<option value="${i}">${escapeHtml(f.title || "")}</option>`).join("")}
+          </select>
         </div>
-      `).join("");
-      // Plot each chart (defer until Plotly ready)
-      facts.forEach(f => renderPlot(f));
+        <div id="fact-detail"></div>
+      `;
+      const sel = document.getElementById("fact-select");
+      const renderSelected = () => renderActiveFact(facts[parseInt(sel.value, 10) || 0]);
+      sel.addEventListener("change", renderSelected);
+      renderSelected();
     } catch (e) {
       if (maybeAuthError(e.message)) return;
       container.innerHTML = `<div class="error">Kunne ikke laste figurer: ${escapeHtml(e.message)}</div>`;
     }
+  }
+
+  function renderActiveFact(f) {
+    const detail = document.getElementById("fact-detail");
+    if (!detail) return;
+    if (!f) { detail.innerHTML = ""; return; }
+    detail.innerHTML = `
+      <div class="fact-card" data-fact-id="${escapeHtml(f.id)}">
+        ${f.intro ? `<p class="intro">${escapeHtml(f.intro)}</p>` : ""}
+        <div class="fact-plot" id="plot-${escapeHtml(f.id)}"></div>
+        ${f.source ? `<div class="fact-source">
+          Kilde: ${escapeHtml(f.source.document || "")}${f.source.sheet ? ` — ark «${escapeHtml(f.source.sheet)}»` : ""}${f.source.page != null ? ", s. " + f.source.page : ""}
+          ${f.source.note ? `<div class="fact-source-note">${escapeHtml(f.source.note)}</div>` : ""}
+        </div>` : ""}
+        ${(f.questions && f.questions.length) ? `
+          <div class="fact-questions">
+            <div>Still et spørsmål om denne figuren:</div>
+            <ul>${f.questions.map(q => `
+              <li><button class="example-q" data-q="${escapeHtml(q)}">${escapeHtml(q)}</button></li>
+            `).join("")}</ul>
+          </div>` : ""}
+      </div>
+    `;
+    renderPlot(f);
   }
 
   function renderPlot(fact) {
