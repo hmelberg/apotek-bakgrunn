@@ -207,13 +207,23 @@ main.content {
   font-variation-settings: "opsz" 144, "SOFT" 50;
 }
 
-.prose p {
+.prose p,
+.chapter-body > p {
   margin: 0 0 22px;
   font-feature-settings: "onum", "liga", "kern";
 }
-.prose p:last-child { margin-bottom: 0; }
-.prose em { font-style: italic; }
-.prose strong { font-weight: 600; }
+.prose p:last-child,
+.chapter-body > p:last-child { margin-bottom: 0; }
+.prose em, .chapter-body em { font-style: italic; }
+.prose strong, .chapter-body strong { font-weight: 600; }
+
+/* H2/H3 inside a chapter body sit snug with the figure that follows */
+.chapter-body > h2 { margin-top: 48px; margin-bottom: 12px; }
+.chapter-body > h2:first-child { margin-top: 8px; }
+.chapter-body > h2 + p,
+.chapter-body > h3 + p { margin-top: 8px; }
+.chapter-body > h2 + .chart-block,
+.chapter-body > p + .chart-block { margin-top: 28px; }
 
 h2, h3 {
   font-family: var(--display);
@@ -977,12 +987,19 @@ const CHAPTERS = [
   },
   {
     id: "okonomi", num: "06", title: "Økonomi og støttebehov",
-    prose: [
-      `De samfunnsøkonomiske konsekvensene av suboptimal legemiddelbruk er betydelige. Watanabe, McInnis og Hirsch (2018) estimerer at ikke-optimalisert legemiddelterapi i USA koster 528 milliarder dollar årlig — rundt 16 prosent av totale helseutgifter. Cutler et al. (2018) finner i en systematisk oversikt at kostnaden ved manglende etterlevelse varierer sterkt mellom diagnosegrupper, men er konsistent høy.`,
-      `For norske pasienter er direkte kostnadsbarrierer mindre utbredt enn i USA, men ikke fraværende: 2 prosent av voksne 45+ oppgir at de ofte eller alltid har unnlatt å ta reseptbelagt medisin pga. kostnad. 6 prosent har gjort det noen ganger. Dette er små andeler, men gjelder reelle pasienter som ikke får den behandlingen legen har forskrevet.`,
-      `3 prosent av voksne 45+ trenger praktisk støtte til pleie og behandling — inkludert å administrere medisiner. Denne gruppen er en naturlig målgruppe for multidose, hjemmetjeneste og tettere apotek-oppfølging.`,
+    blocks: [
+      { type: "h2", text: "Samfunnskostnader ved suboptimal legemiddelbruk" },
+      { type: "prose", text: `De samfunnsøkonomiske konsekvensene av dårlig optimert legemiddelterapi er betydelige, men hovedsakelig estimert i internasjonale studier. Watanabe, McInnis og Hirsch (2018) beregner at ikke-optimalisert legemiddelterapi i USA koster om lag 528 milliarder dollar årlig — rundt 16 prosent av totale helseutgifter. Cutler et al. (2018) finner i en systematisk oversikt at kostnaden ved manglende etterlevelse varierer sterkt mellom diagnosegrupper, men er konsistent høy. Dette er makro-tall: de måler hva samfunnet samlet betaler for feilslått, glemt eller ikke-fulgt behandling.` },
+      { type: "prose", text: `Det finnes ikke tilsvarende norske helhetsestimater, men strukturen er den samme: kostnaden oppstår ikke ved selve legemiddelet, men ved sykehusinnleggelser, forverring og senkomplikasjoner som kunne vært forhindret med bedre rådgivning, samstemming og oppfølging.` },
+
+      { type: "h2", text: "Kostnad som barriere for den enkelte" },
+      { type: "prose", text: `Individuelle kostnadsbarrierer er noe annet — det handler om pasienter som <em>ikke tar</em> medisinen fordi de ikke har råd. I Norge er dette mindre utbredt enn i USA, men ikke fraværende: 2 prosent av voksne 45+ oppgir at de ofte eller alltid har unnlatt å ta reseptbelagt medisin pga. kostnad. 6 prosent har gjort det noen ganger. Dette er små andeler, men gjelder reelle pasienter som ikke får den behandlingen legen har forskrevet.` },
+      { type: "fact", id: "paris-kostnad-ikke-bruk" },
+
+      { type: "h2", text: "Støttebehov til legemiddelhåndtering" },
+      { type: "prose", text: `En tredje dimensjon — uavhengig av både samfunnskostnader og individuell økonomi — er <em>praktisk</em> støttebehov. Tre prosent av voksne 45+ trenger hjelp til pleie og behandling, inkludert å administrere medisiner. Denne gruppen er en naturlig målgruppe for multidose, hjemmetjeneste og tettere apotek-oppfølging.` },
+      { type: "fact", id: "paris-pleiestotte" },
     ],
-    factIds: ["paris-kostnad-ikke-bruk", "paris-pleiestotte"],
     questions: [
       "Hva er samfunnskostnaden av ikke-optimalisert legemiddelbruk ifølge Watanabe og Cutler?",
       "Hvor mange nordmenn bruker multidose, og hvilken effekt har ordningen?",
@@ -992,6 +1009,109 @@ const CHAPTERS = [
   {
     id: "kilder", num: "07", title: "Kilder",
     custom: true,
+  },
+];
+
+/* ===========================================================================
+   Facts — bundled inline so the report renders instantly without an API key.
+   Mirrors data/facts.json (output of scripts/build_facts.py). If you update
+   the Excel figures in build_facts.py, copy the updated values here too.
+   =========================================================================== */
+const FACTS_DATA = [
+  {
+    id: "fastlege-antall-medisiner",
+    title: "Hvor mange medisiner tar voksne fastlege-pasienter regelmessig?",
+    source: { document: "Legemidler.xlsx", sheet: "Fastlege",
+      note: "FHI baselinemåling 2023-24, voksne 18+ hos fastlege siste 12 mnd (n=58 987)." },
+    chart_type: "bar",
+    x_label: "Antall faste medisiner",
+    y_label: "Andel pasienter (%)",
+    series: [{ name: "Andel", points: [
+      ["Ingen", 23.2], ["1–2", 37.5], ["3–4", 24.3], ["5–9", 13.7], ["10+", 1.2]
+    ]}],
+  },
+  {
+    id: "fastlege-informasjon-bivirkninger",
+    title: "Gir fastlegen tilstrekkelig informasjon om bruk og bivirkninger?",
+    source: { document: "Legemidler.xlsx", sheet: "Fastlege",
+      note: "FHI baselinemåling 2023-24 (n=43 138 gyldige svar)." },
+    chart_type: "bar",
+    x_label: "Grad av tilstrekkelig informasjon",
+    y_label: "Andel pasienter (%)",
+    series: [{ name: "Andel", points: [
+      ["Ikke i det hele tatt", 3.2], ["I liten grad", 10.1], ["I noen grad", 24.6],
+      ["I stor grad", 36.7], ["I svært stor grad", 25.5]
+    ]}],
+  },
+  {
+    id: "fastlege-medisineliste",
+    title: "Skriver fastlegen ut medisinliste ved endringer i medisinering?",
+    source: { document: "Legemidler.xlsx", sheet: "Fastlege",
+      note: "FHI baselinemåling 2023-24 (n=45 031 gyldige svar)." },
+    chart_type: "bar",
+    x_label: "Praksis",
+    y_label: "Andel pasienter (%)",
+    series: [{ name: "Andel", points: [
+      ["Ja, alltid", 11.0], ["Ja, ofte", 6.3], ["Ja, noen ganger", 11.0],
+      ["Nei, sjelden", 13.0], ["Nei, aldri", 18.9], ["Ikke aktuelt", 39.9]
+    ]}],
+  },
+  {
+    id: "fastlege-feilmedisinering",
+    title: "Har du opplevd feilmedisinering fra fastlegen siste 2 år?",
+    source: { document: "Legemidler.xlsx", sheet: "Fastlege",
+      note: "FHI baselinemåling 2023-24 (n=59 006 gyldige svar)." },
+    chart_type: "bar",
+    x_label: "Opplevelse siste 2 år",
+    y_label: "Andel pasienter (%)",
+    series: [{ name: "Andel", points: [
+      ["Nei, aldri", 85.8], ["Ja, én gang", 3.4], ["Ja, flere ganger", 0.8],
+      ["Vet ikke", 4.7], ["Ikke aktuelt", 5.3]
+    ]}],
+  },
+  {
+    id: "paris-trygg-bivirkninger",
+    title: "Hvor trygg er du på å vite når medisiner gir bivirkninger?",
+    source: { document: "Legemidler.xlsx", sheet: "PaRIS",
+      note: "OECD PaRIS 2022 (FHI), n=8 090 gyldige svar, voksne 45+." },
+    chart_type: "bar",
+    x_label: "Trygghet",
+    y_label: "Andel pasienter (%)",
+    series: [{ name: "Andel", points: [
+      ["Veldig trygg", 12.0], ["Trygg", 33.0], ["Ganske trygg", 40.4], ["Ikke trygg i det hele tatt", 14.7]
+    ]}],
+  },
+  {
+    id: "paris-medisingjennomgang",
+    title: "Har helsepersonell gjennomgått medisinene dine siste 12 mnd?",
+    source: { document: "Legemidler.xlsx", sheet: "PaRIS",
+      note: "OECD PaRIS 2022 (FHI), n=5 929. OECD Country Note: 68 % (N) vs 75 % (OECD) blant de med 3+ medisiner." },
+    chart_type: "bar",
+    x_label: "Svar",
+    y_label: "Andel pasienter (%)",
+    series: [{ name: "Andel", points: [["Ja", 62.5], ["Nei", 37.5]]}],
+  },
+  {
+    id: "paris-kostnad-ikke-bruk",
+    title: "Har du unnlatt å ta medisin pga kostnad?",
+    source: { document: "Legemidler.xlsx", sheet: "PaRIS",
+      note: "OECD PaRIS 2022 (FHI), n=8 047 gyldige svar." },
+    chart_type: "bar",
+    x_label: "Frekvens siste 12 mnd",
+    y_label: "Andel pasienter (%)",
+    series: [{ name: "Andel", points: [
+      ["Alltid", 0.7], ["Ofte", 1.6], ["Noen ganger", 5.6], ["Sjelden", 8.0], ["Aldri", 84.1]
+    ]}],
+  },
+  {
+    id: "paris-pleiestotte",
+    title: "Trenger du støtte til pleie og behandling?",
+    source: { document: "Legemidler.xlsx", sheet: "PaRIS",
+      note: "OECD PaRIS 2022 (FHI), n=8 604 gyldige svar." },
+    chart_type: "bar",
+    x_label: "Svar",
+    y_label: "Andel pasienter (%)",
+    series: [{ name: "Andel", points: [["Ja", 3.1], ["Nei", 96.9]]}],
   },
 ];
 
@@ -1030,8 +1150,7 @@ const SOURCES = [
 /* ===========================================================================
    State
    =========================================================================== */
-let factsIndex = {};     // { id -> fact }
-let factsPromise = null; // in-flight fetch
+const factsIndex = Object.fromEntries(FACTS_DATA.map(f => [f.id, f]));
 let currentChapterId = "oversikt";
 let aiState = { mode: "idle", question: null, data: null, error: null };
 
@@ -1067,59 +1186,20 @@ async function api(path, init = {}) {
   return resp.json();
 }
 
-function fetchFactsIndex() {
-  if (factsPromise) return factsPromise;
-  factsPromise = api("/facts").then(d => {
-    (d.facts || []).forEach(f => { if (f.id) factsIndex[f.id] = f; });
-    return factsIndex;
-  }).catch(e => {
-    factsPromise = null;
-    throw e;
-  });
-  return factsPromise;
-}
-
-function maybeAuthError(msg) {
+function maybeAuthError(msg, pendingQuestion) {
   if (!msg) return false;
-  if (msg === "no_api_key") { renderSetup(); return true; }
+  if (msg === "no_api_key") {
+    aiState = { mode: "needs_key", question: pendingQuestion || aiState.question, data: null, error: null };
+    renderAI();
+    return true;
+  }
   if (msg.indexOf("401") !== -1) {
     localStorage.removeItem(LS_KEY);
-    renderSetup("API-nøkkelen ble avvist (401). Lim inn en gyldig verdi.");
+    aiState = { mode: "needs_key", question: pendingQuestion || aiState.question, data: null, error: "API-nøkkelen ble avvist (401). Lim inn en gyldig verdi." };
+    renderAI();
     return true;
   }
   return false;
-}
-
-/* ===========================================================================
-   Setup screen
-   =========================================================================== */
-function renderSetup(err) {
-  document.getElementById("app").style.display = "none";
-  document.querySelector(".mobile-toolbar").style.display = "none";
-  const existing = document.getElementById("setup-root");
-  if (existing) existing.remove();
-  const root = document.createElement("div");
-  root.id = "setup-root";
-  root.className = "setup";
-  root.innerHTML = `
-    <div class="eyebrow" style="color:var(--accent)">Førstegangsoppsett</div>
-    <h2>API-nøkkel</h2>
-    <p>Denne siden snakker med en Anvil-tjeneste. Lim inn verdien fra Anvil-secreten <em>API_KEY_PUBLIC</em>. Nøkkelen lagres lokalt i nettleseren din (localStorage).</p>
-    <form id="setup-form">
-      <input type="text" id="setup-key" placeholder="API-nøkkel" autocomplete="off" />
-      <button type="submit">Lagre</button>
-    </form>
-    ${err ? `<div class="error">${esc(err)}</div>` : ""}
-  `;
-  document.body.appendChild(root);
-  document.getElementById("setup-form").addEventListener("submit", (e) => {
-    e.preventDefault();
-    const v = document.getElementById("setup-key").value.trim();
-    if (!v) return;
-    localStorage.setItem(LS_KEY, v);
-    location.reload();
-  });
-  document.getElementById("setup-key").focus();
 }
 
 /* ===========================================================================
@@ -1241,32 +1321,52 @@ function chapterHeader(c) {
   `;
 }
 
-function figuresMarkup(c, factOffset = 1) {
-  if (!c.factIds || !c.factIds.length) return "";
-  return c.factIds.map((fid, i) => {
-    const f = factsIndex[fid];
-    const title = f ? esc(f.title) : "Laster figur …";
-    const intro = f && f.intro ? esc(f.intro) : "";
-    const src = f && f.source ? f.source : null;
-    const srcStr = src ? (
-      esc(src.document || "") +
-      (src.sheet ? ` — ark «${esc(src.sheet)}»` : "") +
-      (src.page != null ? `, s. ${esc(src.page)}` : "") +
-      (src.note ? ` · <em>${esc(src.note)}</em>` : "")
-    ) : "";
-    return `
-      <figure class="chart-block" data-fact-id="${esc(fid)}">
-        <div class="fig-label">Figur ${c.num}.${i + factOffset}</div>
-        ${intro ? `<p class="prose" style="margin:0 0 16px"><em>${intro}</em></p>` : ""}
-        <div class="chart" id="plot-${esc(fid)}"></div>
-        <figcaption>${title}. ${srcStr}</figcaption>
-      </figure>
-    `;
-  }).join("");
+function figureMarkup(chapterNum, figNum, fid) {
+  const f = factsIndex[fid];
+  if (!f) return `<figure class="chart-block"><div class="fig-label">Figur ${chapterNum}.${figNum}</div><div class="chart" style="min-height:0;padding:20px;color:var(--ink-3);font-family:var(--sans);font-size:13px">Ukjent fakta-id: ${esc(fid)}</div></figure>`;
+  const src = f.source || {};
+  const srcStr =
+    esc(src.document || "") +
+    (src.sheet ? ` — ark «${esc(src.sheet)}»` : "") +
+    (src.page != null ? `, s. ${esc(src.page)}` : "") +
+    (src.note ? ` · <em>${esc(src.note)}</em>` : "");
+  return `
+    <figure class="chart-block" data-fact-id="${esc(fid)}">
+      <div class="fig-label">Figur ${chapterNum}.${figNum}</div>
+      <div class="chart" id="plot-${esc(fid)}"></div>
+      <figcaption>${esc(f.title)}. ${srcStr}</figcaption>
+    </figure>
+  `;
 }
 
 function renderStandard(c) {
-  const proseHtml = (c.prose || []).map(p => `<p>${p}</p>`).join("");
+  const factsToPlot = [];
+  let bodyHtml = "";
+
+  if (c.blocks && c.blocks.length) {
+    // Advanced form: flat blocks list with prose/h2/fact
+    let figCounter = 0;
+    bodyHtml = c.blocks.map(b => {
+      if (b.type === "prose") return `<p>${b.text}</p>`;
+      if (b.type === "h2")    return `<h2>${esc(b.text)}</h2>`;
+      if (b.type === "h3")    return `<h3>${esc(b.text)}</h3>`;
+      if (b.type === "fact") {
+        figCounter++;
+        factsToPlot.push(b.id);
+        return figureMarkup(c.num, figCounter, b.id);
+      }
+      return "";
+    }).join("");
+  } else {
+    // Simple form: prose paragraphs, then all figures, then ask block
+    const proseHtml = (c.prose || []).map(p => `<p>${p}</p>`).join("");
+    const figsHtml = (c.factIds || []).map((fid, i) => {
+      factsToPlot.push(fid);
+      return figureMarkup(c.num, i + 1, fid);
+    }).join("");
+    bodyHtml = `${proseHtml}${figsHtml}`;
+  }
+
   const questionsHtml = (c.questions || []).length ? `
     <section class="ask-block">
       <h3>Utforsk videre</h3>
@@ -1275,38 +1375,14 @@ function renderStandard(c) {
       </ul>
     </section>
   ` : "";
+
   rootEl.innerHTML = `
     ${chapterHeader(c)}
-    <div class="prose">${proseHtml}</div>
-    ${figuresMarkup(c)}
+    <div class="chapter-body">${bodyHtml}</div>
     ${questionsHtml}
   `;
-  // Ensure facts are loaded, then render any plots
-  (async () => {
-    try {
-      if (!factsPromise) await fetchFactsIndex();
-      else await factsPromise;
-    } catch (e) {
-      if (maybeAuthError(e.message)) return;
-    }
-    (c.factIds || []).forEach(fid => {
-      const f = factsIndex[fid];
-      if (f) {
-        // Re-render caption now that we have title/source
-        const fig = rootEl.querySelector(`figure[data-fact-id="${fid}"]`);
-        if (fig) {
-          const idx = c.factIds.indexOf(fid);
-          fig.outerHTML = figuresMarkup(c).split("\n").filter(Boolean).join("\n"); // simple: just re-render all
-        }
-        renderFactPlot(`plot-${fid}`, f);
-      }
-    });
-    // After re-render, run again to catch any deferred plot divs
-    (c.factIds || []).forEach(fid => {
-      const f = factsIndex[fid];
-      if (f) renderFactPlot(`plot-${fid}`, f);
-    });
-  })();
+
+  factsToPlot.forEach(fid => renderFactPlot(`plot-${fid}`, factsIndex[fid]));
 }
 
 function renderOversikt(c) {
@@ -1405,6 +1481,39 @@ function renderAI() {
   if (aiState.mode === "idle") renderAIIdle();
   else if (aiState.mode === "loading") renderAILoading();
   else if (aiState.mode === "answered") renderAIAnswered();
+  else if (aiState.mode === "needs_key") renderAINeedsKey();
+}
+
+function renderAINeedsKey() {
+  aiBodyEl.innerHTML = `
+    <div class="ai-needs-key">
+      <div class="ai-q-echo">Førstegangsoppsett</div>
+      <p class="ai-q-text">AI-søket trenger en API-nøkkel — lim inn verdien fra Anvil-secreten <em>API_KEY_PUBLIC</em>. Den lagres kun lokalt i nettleseren din.</p>
+      <form id="ai-key-form" class="ai-input" style="position:static;padding:12px 14px 10px">
+        <input type="text" id="ai-key-input" placeholder="API-nøkkel" autocomplete="off"
+          style="width:100%;border:none;outline:none;background:transparent;font-family:var(--sans);font-size:14px;color:var(--ink);padding:4px 0"/>
+        <div class="ai-input-row">
+          <span class="ai-input-hint">${aiState.question ? "Spørsmålet sendes når du har lagret" : ""}</span>
+          <button class="ai-send" type="submit">Lagre</button>
+        </div>
+      </form>
+      ${aiState.question ? `<div style="font-size:12px;color:var(--ink-3);margin-top:12px;font-style:italic">Pending: ${esc(aiState.question)}</div>` : ""}
+      ${aiState.error ? `<div class="ai-error" style="margin-top:12px">${esc(aiState.error)}</div>` : ""}
+    </div>
+  `;
+  const form = document.getElementById("ai-key-form");
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const v = document.getElementById("ai-key-input").value.trim();
+    if (!v) return;
+    localStorage.setItem(LS_KEY, v);
+    const q = aiState.question;
+    aiState = { mode: "idle", question: null, data: null, error: null };
+    if (q) askAI(q);
+    else renderAI();
+  });
+  const input = document.getElementById("ai-key-input");
+  if (input) input.focus();
 }
 
 function renderAIIdle() {
@@ -1486,19 +1595,25 @@ function renderAnswerText(text, maxN) {
 
 async function askAI(question) {
   if (!question) return;
+  // If we don't have a key yet, prompt inline and remember the question.
+  if (!getApiKey()) {
+    aiState = { mode: "needs_key", question, data: null, error: null };
+    renderAI();
+    return;
+  }
   aiState = { mode: "loading", question, data: null, error: null };
   renderAI();
   aiSendEl.disabled = true;
   try {
     const data = await api("/ask", { method: "POST", body: JSON.stringify({ question }) });
     aiState = { mode: "answered", question, data, error: null };
+    renderAI();
   } catch (e) {
-    if (maybeAuthError(e.message)) return;
+    if (maybeAuthError(e.message, question)) { aiSendEl.disabled = false; return; }
     aiState = { mode: "idle", question: null, data: null, error: "Kunne ikke hente svar: " + e.message };
+    renderAI();
   } finally {
     aiSendEl.disabled = false;
-    renderAI();
-    // Scroll AI body to top of answer
     aiBodyEl.scrollTop = 0;
   }
 }
@@ -1591,17 +1706,15 @@ window.addEventListener("hashchange", () => {
 });
 
 /* ===========================================================================
-   Init
+   Init — the report renders without any API call. Only /ask needs the key,
+   and askAI() prompts for it inline on first use.
    =========================================================================== */
 function init() {
-  if (!getApiKey()) { renderSetup(); return; }
   const hash = (location.hash || "").slice(1);
   if (hash && CHAPTERS.some(c => c.id === hash)) currentChapterId = hash;
   renderNav();
   renderChapter();
   renderAI();
-  // Prefetch facts in background
-  fetchFactsIndex().catch(() => {});
 }
 
 init();
