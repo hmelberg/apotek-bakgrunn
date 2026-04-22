@@ -1,5 +1,17 @@
 allow_embedding: false
 db_schema:
+  api_usage:
+    client: none
+    columns: []
+    indexes: []
+    server: full
+    title: api_usage
+  eval_runs:
+    client: none
+    columns: []
+    indexes: []
+    server: full
+    title: eval_runs
   files:
     client: none
     columns:
@@ -18,6 +30,12 @@ db_schema:
     indexes: []
     server: full
     title: Files
+  table_3:
+    client: none
+    columns: []
+    indexes: []
+    server: full
+    title: Table 3
 dependencies: []
 name: apotek_bakgrunn
 package_name: apotek_bakgrunn
@@ -36,13 +54,13 @@ secrets:
     value: {UL3FDZJX4HFXLGF3: P9g4BUTDFrQT+AHKPSAjQ1CxAQEKeT9uClwO+CdGD0T4RJbghXJ4dduFNivuJEmNtEJtqc8Oq4hEjfsisaMC/avj3G+xYAiVRugg3i/wmCNs1s/ViYB4E1tVbI5lhvv8heti}
   API_KEY_HANS:
     type: secret
-    value: {UL3FDZJX4HFXLGF3: 0EYDcou0Jl/L4y/odjoGPsFddtNC/QfzFbdTnDfmINVJ+WeauOf/LHlOk9Jcs+Xid3pyhgV7u3z53Zgi89QYUFfAzjOBuIzKmMK250OSODNjOnVr1o2INhfVqhw4NaJT3w9PCBKn}
+    value: {UL3FDZJX4HFXLGF3: KEgLBk8gaW/rzMlmBs4s8ioQcpkjrm3AEba2EGa3WPiPaW+UaxcEwbBrU9D7Z3G5r7MDrZb9fnJZj8kM3X4ANg6uwgUHl/L3WmoTwVEBaqGygnTGy4u/PHpAVFzysaQ271br+qTPBPU463y+}
   VOYAGE_API_KEY:
     type: secret
     value: {UL3FDZJX4HFXLGF3: 0fFqtEoGE4mA5jQBMP9mthu4COmeEQkVPF94h3icy+N+YnpR4wi2JVnnIGoj5WYwmm5bIX734EN7zEbhCDwprA/uHuKqby2FrUgiNwrQZhWA/afT8IePIGuacT4bdwSTb5m1qbt2k9QVVxuCKSG3xVqAP9T2FqmlxVmqxMnOl3IvFfeFhjcV1ZRTypA7}
 services:
 - client_config: {enable_v2: true}
-  server_config: {}
+  server_config: {auto_create_missing_columns: true}
   source: /runtime/services/tables.yml
 - client_config: {}
   server_config: {file_table: files}
