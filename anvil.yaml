@@ -25,15 +25,21 @@ renamed: true
 runtime_options:
   client_version: '3'
   legacy_features: {bootstrap3: true, class_names: true}
-  server_spec: {base: python310-minimal}
+  server_spec: {base: python310-standard}
   version: 3
 secrets:
+  ANTHROPIC_API_KEY:
+    type: secret
+    value: {UL3FDZJX4HFXLGF3: K65o8die+GIC1GklEo2xKUM8I/cNYhRUDgfNu2J8pnPrkT0qA1kNXLc/tbqrrddxru2AbOCMLsH0UveMOZgd/dgZCiBH7Z4dNy+hrOZSQAykN1Ccmcl2lshE0DyoIqOPYoEHpKULtWkV2Q5+ZGwpOIYGEFUC3udiyNRxQvUtwmnR7kw9ef7jN9vEXbUBnB1FHf4T7DrGXrZSd+9TWShksRmO4IWcdG9V7DPcYkvjn86c4GkowdjZTJQ7ruDwi3YWg2UZ60GUlFR4ow4=}
+  API_KEY_ALIASES:
+    type: secret
+    value: {UL3FDZJX4HFXLGF3: SyXMx5xlsRTuH0JraXAEaRdOPsChGAwlctPP04/Vhp2MDMYb1MBnO5ywl693+eu2jEJk7OEsURG+GWKmny1XtZ3nES6yg2KTmdTdi0lxEek0+SaCg0Jh041dGjSZVr85IxiX}
+  API_KEY_HANS:
+    type: secret
+    value: {UL3FDZJX4HFXLGF3: BsLgsMsA1S4p5bEBiEoxPNH/y0pJGydRRFwC0FYnWbIV+/+ZT0wlbsIcukrqVpBNHTsY2xVBQwZ9frj+7Z+yZ0ZrpNf2Y/BhK+CvQd8BWKhURk1nkAEQ1TUF+587+w6GyiZYxEpQmAr2t0M3}
   VOYAGE_API_KEY:
     type: secret
     value: {UL3FDZJX4HFXLGF3: 0fFqtEoGE4mA5jQBMP9mthu4COmeEQkVPF94h3icy+N+YnpR4wi2JVnnIGoj5WYwmm5bIX734EN7zEbhCDwprA/uHuKqby2FrUgiNwrQZhWA/afT8IePIGuacT4bdwSTb5m1qbt2k9QVVxuCKSG3xVqAP9T2FqmlxVmqxMnOl3IvFfeFhjcV1ZRTypA7}
-  new_secret:
-    type: secret
-    value: {UL3FDZJX4HFXLGF3: ''}
 services:
 - client_config: {enable_v2: true}
   server_config: {}
