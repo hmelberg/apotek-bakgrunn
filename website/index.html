@@ -330,6 +330,175 @@ h3 { font-size: 20px; line-height: 1.35; font-variation-settings: "opsz" 24; mar
 }
 .chart-block figcaption em { color: var(--ink-3); font-style: italic; }
 
+/* Interactive nytte-kostnad calculator */
+.calc-wrap {
+  margin: 28px 0 8px;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  padding: 24px 0;
+}
+.calc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 36px;
+}
+.calc-inputs { min-width: 0; }
+.calc-output { min-width: 0; }
+.calc-row {
+  margin-bottom: 18px;
+}
+.calc-row:last-child { margin-bottom: 0; }
+.calc-label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  font-family: var(--sans);
+  font-size: 12.5px;
+  color: var(--ink-2);
+  margin-bottom: 6px;
+  line-height: 1.35;
+}
+.calc-label .calc-value {
+  font-family: var(--display);
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--ink);
+  font-variation-settings: "opsz" 72;
+  font-feature-settings: "tnum";
+  letter-spacing: -0.005em;
+}
+.calc-label .calc-unit {
+  font-family: var(--sans);
+  font-size: 11px;
+  color: var(--ink-3);
+  margin-left: 3px;
+}
+.calc-row input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 2px;
+  background: var(--rule);
+  outline: none;
+  margin: 0;
+  padding: 0;
+  cursor: pointer;
+}
+.calc-row input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--paper);
+  box-shadow: 0 0 0 1px var(--accent);
+  cursor: grab;
+}
+.calc-row input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--paper);
+  box-shadow: 0 0 0 1px var(--accent);
+  cursor: grab;
+}
+.calc-row input[type="range"]:active::-webkit-slider-thumb { cursor: grabbing; }
+.calc-row input[type="range"]:focus { outline: none; }
+.calc-row input[type="range"]:focus::-webkit-slider-thumb { background: var(--accent-dk); }
+
+.calc-summary {
+  border: 1px solid var(--rule);
+  padding: 20px;
+  background: var(--paper-2);
+  margin-bottom: 20px;
+}
+.calc-summary-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--rule-2);
+}
+.calc-summary-row:last-child {
+  border-bottom: none;
+  padding-top: 12px;
+  border-top: 2px solid var(--ink);
+  margin-top: 4px;
+}
+.calc-summary-label {
+  font-family: var(--sans);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink-2);
+  align-self: center;
+}
+.calc-summary-row:last-child .calc-summary-label { color: var(--ink); font-weight: 500; }
+.calc-summary-value {
+  font-family: var(--display);
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--ink);
+  font-variation-settings: "opsz" 96;
+  font-feature-settings: "tnum";
+  letter-spacing: -0.01em;
+  text-align: right;
+}
+.calc-summary-value.net-positive { color: var(--accent); }
+.calc-summary-value.net-negative { color: var(--danger); }
+
+.calc-caveat {
+  font-family: var(--sans);
+  font-size: 12px;
+  color: var(--ink-3);
+  font-style: italic;
+  line-height: 1.55;
+  margin-top: 10px;
+}
+
+.calc-reset {
+  font-family: var(--sans);
+  font-size: 12px;
+  color: var(--accent);
+  margin-top: 14px;
+  border: none;
+  padding: 4px 0;
+  cursor: pointer;
+}
+.calc-reset:hover { color: var(--accent-dk); text-decoration: underline; }
+
+.calc-chart {
+  min-height: 260px;
+  margin-top: 12px;
+}
+
+.calc-breakdown {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--rule-2);
+  font-family: var(--sans);
+  font-size: 12.5px;
+  color: var(--ink-2);
+  line-height: 1.6;
+}
+.calc-breakdown-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  padding: 3px 0;
+}
+.calc-breakdown-row span:last-child {
+  font-feature-settings: "tnum";
+  color: var(--ink);
+}
+
+@media (max-width: 800px) {
+  .calc-grid { grid-template-columns: 1fr; gap: 24px; }
+}
+
 /* Reading hint */
 .reading-hint {
   margin-top: 56px;
@@ -1007,7 +1176,34 @@ const CHAPTERS = [
     ],
   },
   {
-    id: "kilder", num: "07", title: "Kilder",
+    id: "apotektjenester", num: "07", title: "Apotektjenester",
+    blocks: [
+      { type: "prose", text: `Rollen til norske apotek har endret seg betydelig det siste tiåret. Fra å være et nær rendyrket utleveringspunkt tilbyr apotekene i dag en rekke tjenester — vaksinasjon, inhalasjonsveiledning, Medisinstart, og oppfølging ved bytte av legemidler. Antall registrerte tjenester har økt fra 41 000 i 2016 til 510 000 i 2024 — mer enn en tolvdobling.` },
+
+      { type: "h2", text: "Vekst i tjenestetilbudet 2016–2024" },
+      { type: "prose", text: `Inhalasjonsveiledning har vært tilgjengelig hele perioden og ligger stabilt rundt 70 000–85 000 tjenester per år. Influensavaksinering i apotek startet i 2019 og økte raskt til over 220 000 årlig. Medisinstart — en strukturert oppfølgingssamtale for pasienter som starter med nye legemidler — ble innført i 2018 og ligger nå på omtrent 22 000 samtaler årlig. Covidvaksinering utgjorde en topp i 2022 (150 000) og har avtatt. Kategorien «vaksinering andre sykdommer» (bl.a. reisevaksiner og oppfriskningsdoser) har vokst sterkt — fra 4 000 i 2019 til nær 150 000 i 2024.` },
+      { type: "fact", id: "apotek-tjenestevekst" },
+
+      { type: "h2", text: "Influensavaksine — hvem får dem?" },
+      { type: "prose", text: `Aldersprofilen følger den forventede risikokurven: flest vaksinerte i aldersgruppene 60–79, med klar økning fra 55-årsalderen. Under 45 år er apotekvaksinering mindre vanlig. En stor gruppe (44 340 tjenester i 2024) er registrert uten oppgitt aldersgruppe.` },
+      { type: "fact", id: "apotek-influensa-alder" },
+
+      { type: "h2", text: "Medisinstart — hvem får veiledning?" },
+      { type: "prose", text: `Medisinstart-samtaler er enda tydeligere skjevfordelt mot eldre pasienter: volumet stiger kraftig fra 50-årsalderen og topper seg rundt 70–79. Dette sammenfaller med gruppen der polyfarmasi er mest utbredt — og hvor konsekvensene av manglende forståelse eller dårlig etterlevelse er størst.` },
+      { type: "fact", id: "apotek-medisinstart-alder" },
+    ],
+    questions: [
+      "Hvilken rolle spiller norske apotek i dag ifølge Apotekforeningens årsrapport 2025?",
+      "Hva er Medisinstart, og hvilke pasienter har mest nytte av ordningen?",
+      "Hvordan har apotekvaksinasjon utviklet seg i Europa ifølge PGEU?",
+    ],
+  },
+  {
+    id: "nytte", num: "08", title: "Nytte og kostnad (illustrativ)",
+    custom: true,
+  },
+  {
+    id: "kilder", num: "09", title: "Kilder",
     custom: true,
   },
 ];
@@ -1113,6 +1309,67 @@ const FACTS_DATA = [
     y_label: "Andel pasienter (%)",
     series: [{ name: "Andel", points: [["Ja", 3.1], ["Nei", 96.9]]}],
   },
+  {
+    id: "apotek-tjenestevekst",
+    title: "Tjenester utført i norske apotek 2016–2024, per tjenestetype",
+    source: { document: "Tjenestedata apotek Hans Olav.csv",
+      note: "Prosjektdata / Apotekforeningen. Aggregert per år og tjenestetype (totalt 509 714 tjenester i 2024)." },
+    chart_type: "stacked-bar",
+    x_label: "År",
+    y_label: "Antall tjenester",
+    series: [
+      { name: "Inhalasjonsveiledning", points: [
+        ["2016", 41187], ["2017", 42520], ["2018", 55856], ["2019", 74037],
+        ["2020", 62094], ["2021", 75078], ["2022", 81361], ["2023", 86343], ["2024", 73431]
+      ]},
+      { name: "Influensavaksine", points: [
+        ["2016", 0], ["2017", 0], ["2018", 0], ["2019", 30971],
+        ["2020", 102862], ["2021", 153752], ["2022", 220956], ["2023", 226381], ["2024", 227275]
+      ]},
+      { name: "Vaksinering andre sykdommer", points: [
+        ["2016", 0], ["2017", 0], ["2018", 0], ["2019", 3990],
+        ["2020", 32477], ["2021", 19645], ["2022", 42889], ["2023", 69298], ["2024", 149322]
+      ]},
+      { name: "Medisinstart", points: [
+        ["2016", 0], ["2017", 0], ["2018", 5017], ["2019", 10564],
+        ["2020", 15294], ["2021", 22471], ["2022", 26965], ["2023", 27640], ["2024", 21775]
+      ]},
+      { name: "Covidvaksine", points: [
+        ["2016", 0], ["2017", 0], ["2018", 0], ["2019", 0],
+        ["2020", 0], ["2021", 835], ["2022", 149981], ["2023", 87521], ["2024", 37911]
+      ]},
+    ],
+  },
+  {
+    id: "apotek-influensa-alder",
+    title: "Influensavaksiner i apotek 2024, fordelt på aldersgruppe",
+    source: { document: "Tjenestedata apotek Hans Olav.csv",
+      note: "Apotekforeningen, 2024. «Ukjent» = 44 340 tjenester uten oppgitt aldersgruppe." },
+    chart_type: "bar",
+    x_label: "Aldersgruppe",
+    y_label: "Antall vaksiner",
+    series: [{ name: "Antall", points: [
+      ["5–9", 4], ["10–14", 187], ["15–19", 1226], ["20–24", 2946],
+      ["25–29", 4746], ["30–34", 6901], ["35–39", 7742], ["40–44", 7670],
+      ["45–49", 8589], ["50–54", 12020], ["55–59", 15645], ["60–64", 20350],
+      ["65–69", 25264], ["70–74", 23596], ["75–79", 22173], ["80+", 23876]
+    ]}],
+  },
+  {
+    id: "apotek-medisinstart-alder",
+    title: "Medisinstart-samtaler i apotek 2024, fordelt på aldersgruppe",
+    source: { document: "Tjenestedata apotek Hans Olav.csv",
+      note: "Apotekforeningen, 2024. Totalt 21 775 samtaler; tydelig skjevhet mot eldre." },
+    chart_type: "bar",
+    x_label: "Aldersgruppe",
+    y_label: "Antall samtaler",
+    series: [{ name: "Antall", points: [
+      ["0–4", 1], ["5–9", 4], ["10–14", 4], ["15–19", 26],
+      ["20–24", 70], ["25–29", 153], ["30–34", 259], ["35–39", 465],
+      ["40–44", 613], ["45–49", 1001], ["50–54", 1675], ["55–59", 2205],
+      ["60–64", 2718], ["65–69", 3117], ["70–74", 3136], ["75–79", 3309], ["80+", 3019]
+    ]}],
+  },
 ];
 
 /* ===========================================================================
@@ -1126,6 +1383,9 @@ const SOURCES = [
     { title: "Nasjonale resultater — pasienterfaringer med sykehus 2021", meta: "FHI" },
     { title: "Utvikling av spørsmål om barn og unges erfaringer med legemidler (BUP)", meta: "FHI PASOPP 2023:979" },
     { title: "Legemidler.xlsx — sammenstilte tabeller fra fastlege- og PaRIS-dataene", meta: "FHI (prosjektgrunnlag)" },
+  ]},
+  { group: "Apotekdata", items: [
+    { title: "Tjenestedata apotek (Hans Olav) — antall tjenester per år, tjenestetype, aldersgruppe og kommune", meta: "Apotekforeningen / prosjektdata, 2016–2024 · ~976 000 aggregerte rader" },
   ]},
   { group: "Policy og tilsyn", items: [
     { title: "Riksrevisjonens undersøkelse av tilgjengelighet og kvalitet i eldreomsorgen", meta: "Dokument 3:5 (2018–2019) · Riksrevisjonen" },
@@ -1207,6 +1467,8 @@ function maybeAuthError(msg, pendingQuestion) {
    =========================================================================== */
 const CHART_TEAL = "#2D524E";
 const CHART_SIENNA = "#A54D1F";
+// Extended palette for multi-series charts. Warm editorial tones.
+const CHART_PALETTE = ["#2D524E", "#A54D1F", "#7A6B3B", "#4A5A7A", "#7A3F3B"];
 
 function plotLayout(yLabel, xLabel) {
   return {
@@ -1250,7 +1512,7 @@ function renderFactPlot(elId, fact) {
     const traces = series.map((s, i) => {
       const xs = s.points.filter(p => p[1] != null).map(p => p[0]);
       const ys = s.points.filter(p => p[1] != null).map(p => p[1]);
-      const color = i === 0 ? CHART_TEAL : CHART_SIENNA;
+      const color = CHART_PALETTE[i % CHART_PALETTE.length];
       if (type === "line") return { x: xs, y: ys, type: "scatter", mode: "lines+markers", name: s.name || "", line: { color, width: 2.5 }, marker: { color, size: 7 } };
       return { x: xs, y: ys, type: "bar", name: s.name || "", marker: { color } };
     });
@@ -1302,6 +1564,7 @@ function renderChapter() {
 
   if (c.id === "oversikt") renderOversikt(c);
   else if (c.id === "kilder") renderKilder(c);
+  else if (c.id === "nytte") renderNytte(c);
   else renderStandard(c);
 
   rootEl.classList.remove("chapter-enter");
@@ -1428,6 +1691,219 @@ function renderOversikt(c) {
   renderOversiktTeaser();
 }
 
+/* ===========================================================================
+   Nytte og kostnad — interaktiv modell (influensavaksine i apotek)
+   =========================================================================== */
+const CALC_INPUTS = [
+  { id: "extra_vacc",    label: "Antall ekstra vaksinerte pga. apotektilbud", unit: "personer", min: 0, max: 500000, step: 1000, default: 100000, format: "int" },
+  { id: "cost_per_vacc", label: "Kostnad per vaksine i apotek",               unit: "kr",       min: 100, max: 800, step: 10, default: 250, format: "int" },
+  { id: "effectiveness", label: "Vaksine-effektivitet mot sykdom",            unit: "%",        min: 0, max: 80, step: 1, default: 40, format: "int" },
+  { id: "flu_prob",      label: "Sannsynlighet for influensa i sesongen (uvaksinert)", unit: "%", min: 5, max: 40, step: 1, default: 20, format: "int" },
+  { id: "gp_prob",       label: "Andel som oppsøker fastlege ved influensa",  unit: "%",        min: 0, max: 60, step: 1, default: 25, format: "int" },
+  { id: "gp_cost",       label: "Kostnad per fastlegebesøk (inkl. refusjon)", unit: "kr",       min: 300, max: 3000, step: 50, default: 1500, format: "int" },
+  { id: "hosp_prob",     label: "Andel med sykehusinnleggelse ved influensa", unit: "%",        min: 0, max: 10, step: 0.1, default: 1.5, format: "1dec" },
+  { id: "hosp_cost",     label: "Kostnad per sykehusopphold (DRG-estimat)",   unit: "kr",       min: 10000, max: 200000, step: 5000, default: 50000, format: "int" },
+  { id: "sick_days",     label: "Gjennomsnittlige sykedager per tilfelle",    unit: "dager",    min: 0, max: 14, step: 0.5, default: 3, format: "1dec" },
+  { id: "sick_value",    label: "Produksjonsverdi per sykedag",               unit: "kr",       min: 0, max: 10000, step: 100, default: 2500, format: "int" },
+];
+
+function formatNum(v, fmt) {
+  if (fmt === "1dec") return v.toLocaleString("no-NO", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  return Math.round(v).toLocaleString("no-NO");
+}
+
+function formatKr(v) {
+  const abs = Math.abs(v);
+  if (abs >= 1e9) return (v / 1e9).toLocaleString("no-NO", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " mrd kr";
+  if (abs >= 1e6) return (v / 1e6).toLocaleString("no-NO", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + " mill kr";
+  if (abs >= 1e3) return Math.round(v / 1000).toLocaleString("no-NO") + " 000 kr";
+  return Math.round(v).toLocaleString("no-NO") + " kr";
+}
+
+function calcModel(vals) {
+  const prevented = vals.extra_vacc * (vals.flu_prob / 100) * (vals.effectiveness / 100);
+  const gpSaved   = prevented * (vals.gp_prob / 100) * vals.gp_cost;
+  const hospSaved = prevented * (vals.hosp_prob / 100) * vals.hosp_cost;
+  const sickSaved = prevented * vals.sick_days * vals.sick_value;
+  const cost      = vals.extra_vacc * vals.cost_per_vacc;
+  const benefit   = gpSaved + hospSaved + sickSaved;
+  const net       = benefit - cost;
+  return { prevented, gpSaved, hospSaved, sickSaved, cost, benefit, net };
+}
+
+function readCalcValues() {
+  const out = {};
+  CALC_INPUTS.forEach(i => {
+    const el = document.getElementById("calc-" + i.id);
+    out[i.id] = el ? parseFloat(el.value) : i.default;
+  });
+  return out;
+}
+
+function updateCalc() {
+  const vals = readCalcValues();
+  // Update slider value labels
+  CALC_INPUTS.forEach(i => {
+    const vEl = document.getElementById("calc-v-" + i.id);
+    if (vEl) vEl.textContent = formatNum(vals[i.id], i.format);
+  });
+  // Run model
+  const r = calcModel(vals);
+  // Update summary
+  document.getElementById("calc-cost").textContent = formatKr(r.cost);
+  document.getElementById("calc-benefit").textContent = formatKr(r.benefit);
+  const netEl = document.getElementById("calc-net");
+  netEl.textContent = (r.net >= 0 ? "+" : "") + formatKr(r.net);
+  netEl.classList.toggle("net-positive", r.net >= 0);
+  netEl.classList.toggle("net-negative", r.net < 0);
+  // Breakdown
+  document.getElementById("calc-prevented").textContent = formatNum(r.prevented, "int") + " personer";
+  document.getElementById("calc-gp").textContent = formatKr(r.gpSaved);
+  document.getElementById("calc-hosp").textContent = formatKr(r.hospSaved);
+  document.getElementById("calc-sick").textContent = formatKr(r.sickSaved);
+  // Chart
+  updateCalcChart(r);
+}
+
+function updateCalcChart(r) {
+  const el = document.getElementById("calc-chart");
+  if (!el) return;
+  const M = 1e6;
+  const ready = () => {
+    if (typeof Plotly === "undefined") { setTimeout(ready, 80); return; }
+    const traces = [
+      // Cost bar (one component)
+      {
+        x: ["Kostnad"],
+        y: [r.cost / M],
+        type: "bar",
+        name: "Kostnad",
+        marker: { color: CHART_PALETTE[4] },
+        hovertemplate: "%{y:.1f} mill kr<extra>Kostnad</extra>",
+      },
+      // Benefit bar stacked: 3 components
+      {
+        x: ["Nytte"],
+        y: [r.gpSaved / M],
+        type: "bar",
+        name: "Spart fastlege",
+        marker: { color: CHART_PALETTE[0] },
+        hovertemplate: "%{y:.1f} mill kr<extra>Spart fastlege</extra>",
+      },
+      {
+        x: ["Nytte"],
+        y: [r.hospSaved / M],
+        type: "bar",
+        name: "Spart sykehus",
+        marker: { color: CHART_PALETTE[1] },
+        hovertemplate: "%{y:.1f} mill kr<extra>Spart sykehus</extra>",
+      },
+      {
+        x: ["Nytte"],
+        y: [r.sickSaved / M],
+        type: "bar",
+        name: "Spart sykedager",
+        marker: { color: CHART_PALETTE[2] },
+        hovertemplate: "%{y:.1f} mill kr<extra>Spart sykedager</extra>",
+      },
+    ];
+    const layout = plotLayout("Mill kr", "");
+    layout.barmode = "stack";
+    layout.showlegend = true;
+    layout.legend = { orientation: "h", y: -0.2, font: { family: "Instrument Sans, sans-serif", size: 11 } };
+    layout.margin.b = 68;
+    Plotly.react(el, traces, layout, { displayModeBar: false, responsive: true });
+  };
+  ready();
+}
+
+function renderNytte(c) {
+  const rows = CALC_INPUTS.map(i => `
+    <div class="calc-row">
+      <div class="calc-label">
+        <span>${esc(i.label)}</span>
+        <span><span class="calc-value" id="calc-v-${i.id}">${formatNum(i.default, i.format)}</span><span class="calc-unit">${esc(i.unit)}</span></span>
+      </div>
+      <input type="range" id="calc-${i.id}" min="${i.min}" max="${i.max}" step="${i.step}" value="${i.default}" />
+    </div>
+  `).join("");
+
+  rootEl.innerHTML = `
+    ${chapterHeader(c)}
+    <div class="chapter-body">
+      <p><strong>Illustrativ, ikke konklusiv.</strong> Dette er en enkel regnemodell som viser hvordan nytte og kostnad ved influensavaksinering i apotek avhenger av et knippe forutsetninger. Tallene er ikke et fullverdig helseøkonomisk estimat — de illustrerer logikken og hvor følsomme konklusjonene er for ulike antakelser.</p>
+
+      <p>Modellen bygger på en enkel kjede: apotekets utvidede tilbud gjør at <em>flere</em> lar seg vaksinere (de som ellers ikke ville oppsøkt fastlege). Vaksinen forhindrer en andel av influensatilfellene. For hvert tilfelle som forhindres, unngås fastlegebesøk, sykehusinnleggelser og tapt arbeidstid med en viss sannsynlighet og kostnad.</p>
+
+      <h2>Interaktiv modell</h2>
+      <p>Dra i sliderene for å se hvordan kostnad, nytte og nettoresultat endrer seg. Standardverdiene er eksempler; bruk spørsmålspanelet til høyre for å spørre om hvordan ulike anslag kan begrunnes.</p>
+
+      <div class="calc-wrap">
+        <div class="calc-grid">
+          <div class="calc-inputs">${rows}
+            <button class="calc-reset" id="calc-reset">Tilbakestill til standardverdier</button>
+          </div>
+          <div class="calc-output">
+            <div class="calc-summary">
+              <div class="calc-summary-row">
+                <span class="calc-summary-label">Kostnad</span>
+                <span class="calc-summary-value" id="calc-cost">—</span>
+              </div>
+              <div class="calc-summary-row">
+                <span class="calc-summary-label">Nytte</span>
+                <span class="calc-summary-value" id="calc-benefit">—</span>
+              </div>
+              <div class="calc-summary-row">
+                <span class="calc-summary-label">Netto (nytte − kostnad)</span>
+                <span class="calc-summary-value" id="calc-net">—</span>
+              </div>
+            </div>
+            <div class="calc-chart" id="calc-chart"></div>
+            <div class="calc-breakdown">
+              <div class="calc-breakdown-row"><span>Forhindrede influensatilfeller</span><span id="calc-prevented">—</span></div>
+              <div class="calc-breakdown-row"><span>Sparte fastlegebesøk</span><span id="calc-gp">—</span></div>
+              <div class="calc-breakdown-row"><span>Sparte sykehusopphold</span><span id="calc-hosp">—</span></div>
+              <div class="calc-breakdown-row"><span>Sparte sykedager (produksjonsverdi)</span><span id="calc-sick">—</span></div>
+            </div>
+            <div class="calc-caveat">Merk: modellen teller ikke alternativkostnad for fastlegens frigjorte tid, effekter av flokkimmunitet, bivirkninger, eller folkehelseeffekten av å nå grupper som ikke ellers ville vaksinert seg. Real-life tall varierer også mye mellom sesonger.</div>
+          </div>
+        </div>
+      </div>
+
+      <h2>Hvordan tolke tallene</h2>
+      <p>Tre viktige lærdommer fra modellen:</p>
+      <p><em>Netto nytte er svært følsom for effektivitets- og sykdomsannsynligheten.</em> Små endringer i hvor mange som faktisk får influensa i sesongen eller hvor godt vaksinen virker, kan flytte netto-resultatet fra positivt til negativt. Det er <strong>ikke</strong> nok å vise at «kostnaden er lav» — effekten må også materialisere seg.</p>
+      <p><em>Produksjonsverdien av sykedager dominerer ofte.</em> I mange kalkyler blir sparte sykedager den største nyttekomponenten. Hvorvidt man tar dette med (og hva man priser det til) avgjør regnestykket. Helseøkonomiske retningslinjer varierer.</p>
+      <p><em>«Ekstra vaksinerte» er nøkkeltallet.</em> Dersom apoteket bare flytter pasienter som ellers ville vaksinert seg hos fastlegen, er nytteverdien liten — fastlegen unngår da besøket, men vaksinen hadde uansett blitt satt. Gevinsten ligger i de som ellers <em>ikke</em> ville vaksinert seg.</p>
+    </div>
+
+    <section class="ask-block">
+      <h3>Utforsk videre</h3>
+      <ul class="ask-list">
+        <li><button class="ask-btn" data-q="Hva er dokumentert nytte og kostnad av influensavaksine i apotek i Norge?">Hva er dokumentert nytte og kostnad av influensavaksine i apotek i Norge?</button></li>
+        <li><button class="ask-btn" data-q="Hvordan måler man effekten av Medisinstart eller legemiddelgjennomgang?">Hvordan måler man effekten av Medisinstart eller legemiddelgjennomgang?</button></li>
+        <li><button class="ask-btn" data-q="Hvilke metodiske utfordringer finnes ved kostnad–nytte-analyser av apotektjenester?">Hvilke metodiske utfordringer finnes ved kostnad–nytte-analyser av apotektjenester?</button></li>
+      </ul>
+    </section>
+  `;
+
+  // Wire up events
+  CALC_INPUTS.forEach(i => {
+    const el = document.getElementById("calc-" + i.id);
+    if (el) el.addEventListener("input", updateCalc);
+  });
+  const reset = document.getElementById("calc-reset");
+  if (reset) reset.addEventListener("click", () => {
+    CALC_INPUTS.forEach(i => {
+      const el = document.getElementById("calc-" + i.id);
+      if (el) el.value = i.default;
+    });
+    updateCalc();
+  });
+  // Initial render
+  updateCalc();
+}
+
 function renderKilder(c) {
   const groups = SOURCES.map(g => `
     <div class="source-group-label">${esc(g.group)}</div>
@@ -1446,7 +1922,7 @@ function renderKilder(c) {
   rootEl.innerHTML = `
     ${chapterHeader(c)}
     <div class="prose">
-      <p>Rapporten bygger på 19 offentlige kilder — nasjonale pasientundersøkelser (FHI), tilsyns- og policy-dokumenter, bransjestatistikk og to internasjonale systematiske oversikter. Hver sitering i AI-panelet peker til den opprinnelige kilden med sidereferanse.</p>
+      <p>Rapporten bygger på 20 offentlige kilder — nasjonale pasientundersøkelser (FHI), apotekenes tjenestedata, tilsyns- og policy-dokumenter, bransjestatistikk og to internasjonale systematiske oversikter. Hver sitering i AI-panelet peker til den opprinnelige kilden med sidereferanse.</p>
     </div>
     ${groups}
   `;
