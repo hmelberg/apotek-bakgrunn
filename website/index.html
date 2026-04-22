@@ -3,776 +3,1608 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Apotek & legemidler — spør om kildene</title>
-<meta name="description" content="Still spørsmål om norske rapporter om apotek, legemidler, fastlege og pasienterfaringer. Svar med kildehenvisninger." />
+<title>Apotek, legemidler og pasienterfaringer — en statusrapport</title>
+<meta name="description" content="Rapport om rådgivning, oppfølging, feilmedisinering og pasienttilfredshet i norsk legemiddelbruk — bygget på FHI, OECD, Riksrevisjonen, Helsetilsynet og andre offentlige kilder." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,400;9..144,500;9..144,600;9..144,700&family=Instrument+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&display=swap">
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" defer></script>
 <style>
-  :root {
-    --bg: #FAFBFC;
-    --surface: #FFFFFF;
-    --surface-subtle: #F3F5F8;
-    --border: #E4E9EE;
-    --border-strong: #CDD4DC;
-    --text: #1A2332;
-    --text-muted: #5A6876;
-    --accent: #2B5C8A;
-    --accent-dark: #1F466A;
-    --accent-soft: #E7EFF7;
-    --warn: #9B4A13;
-    --radius: 10px;
-    --shadow: 0 1px 2px rgba(17,24,39,0.04), 0 4px 12px rgba(17,24,39,0.04);
-    --shadow-strong: 0 2px 4px rgba(17,24,39,0.06), 0 12px 28px rgba(17,24,39,0.07);
-    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  }
-  * { box-sizing: border-box; }
-  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: var(--font); line-height: 1.55; }
-  body { min-height: 100vh; -webkit-font-smoothing: antialiased; }
-  a { color: var(--accent); text-decoration: none; }
-  a:hover { text-decoration: underline; }
-  button { font-family: inherit; cursor: pointer; }
+/* =========================================================================
+   Design tokens — warm editorial palette (Scandinavian whitepaper aesthetic)
+   ========================================================================= */
+:root {
+  --paper:     #F7F4EE;
+  --paper-2:   #FCFAF4;
+  --ink:       #1B1D20;
+  --ink-2:     #4A4E54;
+  --ink-3:     #7A7E84;
+  --rule:      #D4CFC3;
+  --rule-2:    #E4E0D6;
+  --accent:    #2D524E;
+  --accent-dk: #203B38;
+  --accent-2:  #A54D1F;
+  --honey:     #F2E8D5;
+  --panel:     #EFEAE1;
+  --danger:    #8B2A1A;
 
-  header.site {
-    padding: 28px 24px 8px;
-    max-width: 860px;
-    margin: 0 auto;
-  }
-  header.site h1 {
-    font-size: 22px;
-    font-weight: 600;
-    margin: 0 0 4px;
-    letter-spacing: -0.01em;
-  }
-  header.site p.tagline {
-    margin: 0;
-    color: var(--text-muted);
-    font-size: 14px;
-  }
+  --serif:   "Source Serif 4", Georgia, "Times New Roman", serif;
+  --display: "Fraunces", "Source Serif 4", Georgia, serif;
+  --sans:    "Instrument Sans", -apple-system, "Segoe UI", sans-serif;
 
-  main { max-width: 860px; margin: 0 auto; padding: 20px 24px 80px; }
+  --sidebar-l: 240px;
+  --sidebar-r: 360px;
+  --gutter:    56px;
+  --max:       1440px;
+}
 
-  /* Ask box */
-  form.ask {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 18px 20px;
-    box-shadow: var(--shadow);
-    margin: 20px 0 28px;
-  }
-  form.ask textarea {
-    width: 100%;
-    min-height: 72px;
-    resize: vertical;
-    border: none;
-    outline: none;
-    font: inherit;
-    font-size: 16px;
-    background: transparent;
-    color: var(--text);
-  }
-  form.ask textarea::placeholder { color: var(--text-muted); }
-  form.ask .row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-top: 8px;
-  }
-  form.ask .hint {
-    flex: 1;
-    color: var(--text-muted);
-    font-size: 13px;
-  }
-  form.ask button.submit {
-    background: var(--accent);
-    color: white;
-    border: none;
-    padding: 10px 22px;
-    font-size: 15px;
-    font-weight: 500;
-    border-radius: 8px;
-    transition: background 0.12s;
-  }
-  form.ask button.submit:hover { background: var(--accent-dark); }
-  form.ask button.submit:disabled { opacity: 0.55; cursor: wait; }
+* { box-sizing: border-box; }
 
-  /* Section headings */
-  section { margin: 36px 0 0; }
-  section > h2 {
-    font-size: 15px;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    margin: 0 0 14px;
-  }
+html, body {
+  margin: 0; padding: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 17px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "kern", "liga", "onum";
+}
 
-  /* Example questions — grouped cards */
-  .examples-group {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 16px 18px;
-    margin-bottom: 12px;
-  }
-  .examples-group h3 {
-    font-size: 15px;
-    font-weight: 600;
-    margin: 0 0 4px;
-    color: var(--text);
-  }
-  .examples-group .desc {
-    margin: 0 0 10px;
-    font-size: 13px;
-    color: var(--text-muted);
-  }
-  .examples-group ul { list-style: none; padding: 0; margin: 0; }
-  .examples-group li { margin: 6px 0; }
-  button.example-q, button.followup-q {
-    background: var(--surface-subtle);
-    border: 1px solid var(--border);
-    color: var(--text);
-    text-align: left;
-    padding: 9px 13px;
-    border-radius: 8px;
-    font-size: 14px;
-    line-height: 1.45;
-    width: 100%;
-    transition: background 0.1s, border-color 0.1s;
-  }
-  button.example-q:hover, button.followup-q:hover {
-    background: var(--accent-soft);
-    border-color: var(--accent);
-  }
+a { color: var(--accent); text-decoration: none; border-bottom: 1px dotted var(--accent); }
+a:hover { color: var(--accent-dk); border-bottom-style: solid; }
 
-  /* Figures — picker + active card */
-  .fact-picker {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 14px 18px;
-    margin-bottom: 14px;
-    box-shadow: var(--shadow);
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-  .fact-picker label {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--text);
-  }
-  .fact-picker select {
-    flex: 1;
-    min-width: 220px;
-    padding: 9px 12px;
-    font-size: 15px;
-    font-family: inherit;
-    color: var(--text);
-    background: var(--surface-subtle);
-    border: 1px solid var(--border-strong);
-    border-radius: 8px;
-    cursor: pointer;
-    appearance: none;
-    -webkit-appearance: none;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'><path fill='%235A6876' d='M6 9L1 4h10z'/></svg>");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    background-size: 12px;
-    padding-right: 34px;
-  }
-  .fact-picker select:focus {
-    outline: none;
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px var(--accent-soft);
-  }
-  .fact-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px 22px;
-    margin-bottom: 16px;
-    box-shadow: var(--shadow);
-  }
-  .fact-card .intro {
-    color: var(--text);
-    font-size: 15px;
-    margin: 0 0 16px;
-    line-height: 1.6;
-  }
-  .fact-plot { width: 100%; min-height: 280px; }
-  .fact-placeholder {
-    background: var(--surface-subtle);
-    border: 1px dashed var(--border-strong);
-    border-radius: 8px;
-    padding: 28px 18px;
-    text-align: center;
-    color: var(--text-muted);
-    font-size: 13px;
-  }
-  .fact-source {
-    margin-top: 10px;
-    font-size: 12px;
-    color: var(--text-muted);
-  }
-  .fact-source-note {
-    margin-top: 3px;
-    font-style: italic;
-    font-size: 11.5px;
-    opacity: 0.85;
-  }
-  .fact-questions { margin-top: 14px; }
-  .fact-questions > div {
-    font-size: 13px;
-    color: var(--text-muted);
-    margin-bottom: 8px;
-  }
-  .fact-questions ul { list-style: none; padding: 0; margin: 0; }
-  .fact-questions li { margin: 6px 0; }
+button { font-family: inherit; cursor: pointer; background: transparent; border: none; color: inherit; padding: 0; }
 
-  /* Answer view */
-  .answer-wrap {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 22px 24px;
-    box-shadow: var(--shadow);
-    margin-top: 12px;
-  }
-  .answer-question {
-    font-size: 14px;
-    color: var(--text-muted);
-    margin: 0 0 4px;
-  }
-  .answer-question-body {
-    font-size: 17px;
-    font-weight: 500;
-    margin: 0 0 18px;
-    color: var(--text);
-  }
-  .answer-body {
-    font-size: 16px;
-    line-height: 1.65;
-    color: var(--text);
-    white-space: pre-wrap;
-  }
-  .answer-body sup.cite {
-    display: inline-block;
-    margin: 0 2px;
-    padding: 1px 5px;
-    font-size: 11px;
-    font-weight: 600;
-    background: var(--accent-soft);
-    color: var(--accent-dark);
-    border-radius: 4px;
-    cursor: pointer;
-    vertical-align: top;
-    line-height: 1.4;
-    user-select: none;
-  }
-  .answer-body sup.cite:hover { background: var(--accent); color: white; }
-  .answer-body sup.cite.active { background: var(--accent); color: white; }
+/* =========================================================================
+   Layout — 3-column grid
+   ========================================================================= */
+.app {
+  display: grid;
+  grid-template-columns: var(--sidebar-l) minmax(0, 1fr) var(--sidebar-r);
+  gap: var(--gutter);
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 0 32px;
+  min-height: 100vh;
+}
 
-  .citations {
-    margin-top: 22px;
-    border-top: 1px solid var(--border);
-    padding-top: 16px;
-  }
-  .citations h4 {
-    font-size: 13px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    color: var(--text-muted);
-    margin: 0 0 10px;
-  }
-  .citation {
-    background: var(--surface-subtle);
-    border-radius: 8px;
-    padding: 10px 12px;
-    margin-bottom: 8px;
-    font-size: 13px;
-    transition: box-shadow 0.15s;
-  }
-  .citation.highlight { box-shadow: 0 0 0 2px var(--accent); }
-  .citation .meta {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    align-items: baseline;
-    margin-bottom: 2px;
-  }
-  .citation .n {
-    font-weight: 700;
-    color: var(--accent-dark);
-    background: white;
-    padding: 0px 7px;
-    border-radius: 4px;
-    font-size: 12px;
-  }
-  .citation .doc { color: var(--text); font-weight: 500; }
-  .citation .page { color: var(--text-muted); }
-  .citation .note { color: var(--text-muted); font-style: italic; margin-left: auto; }
-  .citation .snippet {
-    color: var(--text-muted);
-    font-size: 12px;
-    margin: 4px 0 0;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    line-height: 1.45;
-  }
+nav.chapters,
+aside.ai-panel {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  padding: 44px 0 28px;
+}
 
-  .followups {
-    margin-top: 20px;
-  }
-  .followups h4 {
-    font-size: 13px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    color: var(--text-muted);
-    margin: 0 0 10px;
-  }
-  .followups ul { list-style: none; padding: 0; margin: 0; }
-  .followups li { margin-bottom: 6px; }
+/* thin scrollbars in sidebars */
+nav.chapters::-webkit-scrollbar,
+aside.ai-panel::-webkit-scrollbar { width: 6px; }
+nav.chapters::-webkit-scrollbar-thumb,
+aside.ai-panel::-webkit-scrollbar-thumb { background: var(--rule); border-radius: 3px; }
 
-  /* Loading / errors / footer */
-  .loading {
-    color: var(--text-muted);
-    text-align: center;
-    padding: 28px 10px;
-    font-size: 14px;
-  }
-  .spinner {
-    width: 16px; height: 16px;
-    border: 2px solid var(--border);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-    display: inline-block;
-    vertical-align: middle;
-    margin-right: 8px;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
+main.content {
+  padding: 60px 0 140px;
+  max-width: 680px;
+  min-width: 0;
+}
 
-  .error {
-    background: #FDECEC;
-    border: 1px solid #F4BFBF;
-    color: #7A1818;
-    padding: 12px 14px;
-    border-radius: 8px;
-    font-size: 14px;
-    margin-top: 14px;
-  }
+/* =========================================================================
+   Left — chapter navigation
+   ========================================================================= */
+.brand {
+  margin-bottom: 40px;
+  padding-right: 16px;
+}
+.brand-mark {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 22px;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  font-variation-settings: "opsz" 72, "SOFT" 30;
+  color: var(--ink);
+}
+.brand-sub {
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-top: 6px;
+}
 
-  .back-link {
-    display: inline-block;
-    margin: 14px 0 0;
-    font-size: 14px;
-  }
+.chapter-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border-top: 1px solid var(--rule);
+}
+.chapter-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: 2px;
+  padding: 14px 16px 14px 0;
+  cursor: pointer;
+  border-bottom: 1px solid var(--rule-2);
+  transition: background 0.15s;
+}
+.chapter-item::before {
+  content: "";
+  position: absolute;
+  left: -12px;
+  top: 50%;
+  transform: translate(-6px, -50%);
+  width: 2px;
+  height: 22px;
+  background: var(--accent);
+  opacity: 0;
+  transition: transform 0.18s ease-out, opacity 0.18s ease-out;
+}
+.chapter-item:hover::before { transform: translate(0, -50%); opacity: 0.4; }
+.chapter-item.active::before { transform: translate(0, -50%); opacity: 1; }
+.chapter-item.active .chapter-title { color: var(--ink); }
+.chapter-item:hover .chapter-title { color: var(--ink); }
 
-  footer.site {
-    max-width: 860px;
-    margin: 40px auto 0;
-    padding: 20px 24px 30px;
-    font-size: 12px;
-    color: var(--text-muted);
-    border-top: 1px solid var(--border);
-  }
+.chapter-num {
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: var(--ink-3);
+  padding-top: 4px;
+}
+.chapter-title {
+  font-family: var(--display);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--ink-2);
+  font-variation-settings: "opsz" 24;
+  transition: color 0.15s;
+}
 
-  @media (max-width: 520px) {
-    header.site { padding: 20px 18px 4px; }
-    main { padding: 14px 18px 60px; }
-    form.ask { padding: 14px 16px; }
-    form.ask .row { flex-direction: column; align-items: stretch; }
-    form.ask button.submit { width: 100%; }
-    .answer-wrap { padding: 18px 16px; }
+.nav-foot {
+  margin-top: 32px;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule);
+  font-family: var(--sans);
+  font-size: 11px;
+  color: var(--ink-3);
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+}
+
+/* =========================================================================
+   Center — content
+   ========================================================================= */
+.chapter-header {
+  margin-bottom: 32px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid var(--rule);
+}
+.eyebrow {
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+  margin-bottom: 14px;
+}
+.chapter-header h1 {
+  font-family: var(--display);
+  font-size: 52px;
+  font-weight: 500;
+  line-height: 1.02;
+  letter-spacing: -0.015em;
+  margin: 0;
+  color: var(--ink);
+  font-variation-settings: "opsz" 144, "SOFT" 50;
+}
+
+.prose p {
+  margin: 0 0 22px;
+  font-feature-settings: "onum", "liga", "kern";
+}
+.prose p:last-child { margin-bottom: 0; }
+.prose em { font-style: italic; }
+.prose strong { font-weight: 600; }
+
+h2, h3 {
+  font-family: var(--display);
+  font-weight: 500;
+  color: var(--ink);
+  font-variation-settings: "opsz" 48;
+  margin-top: 56px;
+  margin-bottom: 14px;
+  letter-spacing: -0.005em;
+}
+h2 { font-size: 30px; line-height: 1.2; }
+h3 { font-size: 20px; line-height: 1.35; font-variation-settings: "opsz" 24; margin-top: 40px; }
+
+/* Stat cards */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0;
+  margin: 40px 0 48px;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+.stat-card {
+  position: relative;
+  padding: 28px 20px 24px;
+  border-left: 1px solid var(--rule-2);
+  min-width: 0;
+}
+.stat-card:first-child { border-left: none; }
+.stat-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0;
+  width: 28px;
+  height: 2px;
+  background: var(--accent-2);
+}
+.stat-num {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 54px;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  font-variation-settings: "opsz" 144, "SOFT" 50;
+  font-feature-settings: "tnum", "lnum";
+  display: inline-block;
+}
+.stat-unit {
+  display: inline-block;
+  margin-left: 2px;
+  font-family: var(--sans);
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--accent-2);
+  vertical-align: top;
+  margin-top: 10px;
+}
+.stat-label {
+  margin-top: 10px;
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  font-weight: 500;
+}
+.stat-sub {
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--ink-3);
+  line-height: 1.45;
+}
+
+/* Chart block — like an editorial figure */
+.chart-block {
+  margin: 44px 0;
+  padding: 0;
+}
+.chart-block + .chart-block { margin-top: 56px; }
+.fig-label {
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--rule);
+}
+.chart {
+  width: 100%;
+  min-height: 320px;
+}
+.chart-block figcaption {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--rule-2);
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--ink-2);
+  line-height: 1.5;
+}
+.chart-block figcaption em { color: var(--ink-3); font-style: italic; }
+
+/* Reading hint */
+.reading-hint {
+  margin-top: 56px;
+  padding: 18px 0;
+  border-top: 1px solid var(--rule);
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--ink-3);
+  font-style: italic;
+}
+
+/* Ask buttons inside chapter */
+.ask-block { margin-top: 48px; }
+.ask-block h3 { margin-top: 0; margin-bottom: 14px; }
+.ask-list { list-style: none; padding: 0; margin: 0; }
+.ask-list li { margin: 0; border-bottom: 1px solid var(--rule-2); }
+.ask-list li:first-child { border-top: 1px solid var(--rule-2); }
+button.ask-btn {
+  width: 100%;
+  text-align: left;
+  padding: 14px 0;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  font-family: var(--serif);
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--ink-2);
+  transition: color 0.15s;
+}
+button.ask-btn::before {
+  content: "→";
+  font-family: var(--sans);
+  color: var(--accent-2);
+  font-size: 15px;
+  flex-shrink: 0;
+  transition: transform 0.18s ease-out;
+}
+button.ask-btn:hover { color: var(--ink); }
+button.ask-btn:hover::before { transform: translateX(3px); }
+
+/* Source list (Kilder chapter) */
+.sources-list { list-style: none; padding: 0; margin: 24px 0 0; }
+.sources-list li {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--rule-2);
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 12px;
+}
+.sources-list li:first-child { border-top: 1px solid var(--rule); }
+.source-n {
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--accent-2);
+  padding-top: 2px;
+}
+.source-body { line-height: 1.5; }
+.source-title { font-weight: 500; color: var(--ink); }
+.source-meta {
+  display: block;
+  margin-top: 2px;
+  font-family: var(--sans);
+  font-size: 12.5px;
+  color: var(--ink-3);
+}
+.source-group-label {
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+  margin: 32px 0 4px;
+}
+.sources-list + .source-group-label { margin-top: 40px; }
+
+/* =========================================================================
+   Right — AI panel
+   ========================================================================= */
+aside.ai-panel {
+  padding-left: 8px;
+  display: flex;
+  flex-direction: column;
+}
+.ai-header {
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 16px;
+  margin-bottom: 20px;
+}
+.ai-header .eyebrow { margin-bottom: 4px; color: var(--accent); }
+.ai-header h2 {
+  font-family: var(--display);
+  font-size: 22px;
+  font-weight: 500;
+  margin: 0;
+  font-variation-settings: "opsz" 48;
+  letter-spacing: -0.005em;
+}
+.ai-header .ai-sub {
+  margin-top: 6px;
+  font-family: var(--sans);
+  font-size: 12.5px;
+  color: var(--ink-3);
+  line-height: 1.5;
+}
+
+.ai-body { flex: 1; overflow-y: auto; padding: 4px 2px 20px; min-height: 200px; }
+
+.ai-idle .ai-intro {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 15px;
+  color: var(--ink-2);
+  margin-bottom: 18px;
+  line-height: 1.55;
+}
+.ai-suggest-label {
+  font-family: var(--sans);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 6px;
+}
+.ai-suggest-list { list-style: none; padding: 0; margin: 0; }
+.ai-suggest-list li { border-bottom: 1px solid var(--rule-2); }
+.ai-suggest-list li:first-child { border-top: 1px solid var(--rule-2); }
+button.ai-suggest {
+  width: 100%;
+  text-align: left;
+  padding: 11px 2px 11px 0;
+  font-family: var(--serif);
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--ink-2);
+  transition: color 0.15s;
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+}
+button.ai-suggest::before {
+  content: "→";
+  color: var(--accent);
+  font-family: var(--sans);
+  font-size: 13px;
+  transition: transform 0.18s;
+  flex-shrink: 0;
+}
+button.ai-suggest:hover { color: var(--ink); }
+button.ai-suggest:hover::before { transform: translateX(3px); }
+
+.ai-loading .ai-q-echo,
+.ai-answered .ai-q-echo {
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+.ai-loading .ai-q-text,
+.ai-answered .ai-q-text {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 15.5px;
+  color: var(--ink);
+  line-height: 1.45;
+  margin: 0 0 20px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--rule);
+}
+.ai-spinner {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink-3);
+  font-size: 14px;
+  font-family: var(--sans);
+}
+.ai-spinner::before {
+  content: "";
+  width: 12px; height: 12px;
+  border: 1.5px solid var(--rule);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.ai-answer {
+  font-family: var(--serif);
+  font-size: 15.5px;
+  line-height: 1.6;
+  color: var(--ink);
+  white-space: pre-wrap;
+  margin-bottom: 24px;
+}
+.ai-answer sup.cite {
+  display: inline-block;
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--accent-2);
+  vertical-align: top;
+  line-height: 1.5;
+  padding: 0 3px;
+  border-bottom: 1px dotted var(--accent-2);
+  cursor: pointer;
+  user-select: none;
+  margin-left: 1px;
+}
+.ai-answer sup.cite:hover { border-bottom-style: solid; }
+
+.ai-citations {
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule);
+}
+.ai-citations h4 {
+  font-family: var(--sans);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin: 0 0 10px;
+}
+.ai-citation {
+  padding: 10px 8px;
+  margin: 0 -8px 4px;
+  display: grid;
+  grid-template-columns: 26px 1fr;
+  gap: 10px;
+  border-radius: 2px;
+  transition: background 1s ease-out;
+}
+.ai-citation.highlight { background: var(--honey); transition: background 0.1s; }
+.ai-cite-n {
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--accent-2);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  text-align: center;
+  padding: 2px 0;
+  height: fit-content;
+  min-width: 22px;
+}
+.ai-cite-body { min-width: 0; }
+.ai-cite-doc {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 13px;
+  color: var(--ink);
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+.ai-cite-page {
+  display: inline-block;
+  font-style: normal;
+  font-family: var(--sans);
+  font-size: 11px;
+  color: var(--ink-3);
+  margin-left: 6px;
+  letter-spacing: 0.02em;
+}
+.ai-cite-snippet {
+  font-size: 12px;
+  color: var(--ink-3);
+  line-height: 1.5;
+  margin-top: 4px;
+  font-family: var(--serif);
+}
+
+.ai-followups {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+}
+.ai-followups h4 {
+  font-family: var(--sans);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin: 0 0 6px;
+}
+
+.ai-reset {
+  margin-top: 14px;
+  display: inline-block;
+  font-family: var(--sans);
+  font-size: 12px;
+  color: var(--accent);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+.ai-reset:hover { color: var(--accent-dk); }
+
+.ai-error {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-left: 2px solid var(--danger);
+  background: #FAE8E3;
+  color: var(--danger);
+  font-family: var(--sans);
+  font-size: 13px;
+}
+
+/* AI input — sticky at bottom */
+.ai-input-wrap {
+  position: sticky;
+  bottom: 0;
+  background: linear-gradient(var(--paper) 20%, rgba(247,244,238,0));
+  padding: 16px 0 20px;
+  margin-top: 8px;
+}
+.ai-input-wrap::before {
+  content: "";
+  position: absolute;
+  top: -16px; left: 0; right: 0;
+  height: 16px;
+  background: linear-gradient(rgba(247,244,238,0), var(--paper) 90%);
+  pointer-events: none;
+}
+form.ai-input {
+  position: relative;
+  background: var(--paper-2);
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  padding: 12px 14px 10px;
+  transition: border-color 0.18s, box-shadow 0.18s;
+}
+form.ai-input:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(45,82,78,0.08);
+}
+form.ai-input textarea {
+  width: 100%;
+  min-height: 44px;
+  max-height: 140px;
+  resize: none;
+  border: none;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  font-size: 14.5px;
+  color: var(--ink);
+  font-family: var(--serif);
+  line-height: 1.5;
+}
+form.ai-input textarea::placeholder { color: var(--ink-3); font-style: italic; }
+.ai-input-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 6px;
+}
+.ai-input-hint {
+  font-family: var(--sans);
+  font-size: 10.5px;
+  color: var(--ink-3);
+  letter-spacing: 0.04em;
+}
+button.ai-send {
+  background: var(--accent);
+  color: var(--paper);
+  padding: 6px 14px;
+  font-family: var(--sans);
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  border-radius: 2px;
+  transition: background 0.15s;
+}
+button.ai-send:hover { background: var(--accent-dk); }
+button.ai-send:disabled { opacity: 0.4; cursor: wait; }
+
+/* =========================================================================
+   Setup screen (first load, API key)
+   ========================================================================= */
+.setup {
+  max-width: 480px;
+  margin: 120px auto;
+  padding: 32px 36px;
+  border: 1px solid var(--rule);
+  background: var(--paper-2);
+}
+.setup h2 {
+  font-family: var(--display);
+  font-size: 26px;
+  margin: 0 0 8px;
+  font-variation-settings: "opsz" 48;
+}
+.setup p { font-size: 14.5px; color: var(--ink-2); margin: 0 0 18px; }
+.setup input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--rule);
+  background: white;
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--ink);
+  border-radius: 2px;
+}
+.setup input:focus { outline: none; border-color: var(--accent); }
+.setup button {
+  margin-top: 14px;
+  background: var(--accent);
+  color: var(--paper);
+  padding: 10px 22px;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  border-radius: 2px;
+}
+.setup .error {
+  margin-top: 16px;
+  padding: 10px 12px;
+  background: #FAE8E3;
+  border-left: 2px solid var(--danger);
+  color: var(--danger);
+  font-family: var(--sans);
+  font-size: 13px;
+}
+
+/* =========================================================================
+   Chapter transition
+   ========================================================================= */
+@keyframes chapterIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.chapter-enter { animation: chapterIn 380ms cubic-bezier(0.2, 0.6, 0.2, 1) both; }
+
+/* =========================================================================
+   Mobile — collapse sidebars
+   ========================================================================= */
+.mobile-toolbar {
+  display: none;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: var(--paper);
+  border-bottom: 1px solid var(--rule);
+  padding: 10px 16px;
+  align-items: center;
+  gap: 10px;
+}
+.mobile-toolbar button {
+  font-family: var(--sans);
+  font-size: 12.5px;
+  color: var(--ink);
+  letter-spacing: 0.02em;
+  padding: 6px 10px;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+}
+.mobile-toolbar .current {
+  font-family: var(--display);
+  font-size: 15px;
+  color: var(--ink);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(27, 29, 32, 0.4);
+  z-index: 20;
+}
+.backdrop.active { display: block; }
+
+@media (max-width: 1100px) {
+  .app { grid-template-columns: 220px 1fr; padding: 0 24px; gap: 40px; }
+  aside.ai-panel {
+    position: fixed;
+    top: 0; right: 0;
+    width: min(400px, 92vw);
+    height: 100vh;
+    background: var(--paper);
+    border-left: 1px solid var(--rule);
+    padding: 32px 24px 20px;
+    z-index: 30;
+    transform: translateX(100%);
+    transition: transform 0.28s cubic-bezier(0.2, 0.6, 0.2, 1);
+    box-shadow: -10px 0 40px rgba(27,29,32,0.08);
   }
+  aside.ai-panel.open { transform: translateX(0); }
+  main.content { padding-top: 32px; }
+  .mobile-toolbar { display: flex; }
+}
+
+@media (max-width: 720px) {
+  .app { grid-template-columns: 1fr; padding: 0 18px; gap: 0; }
+  nav.chapters {
+    position: fixed;
+    top: 0; left: 0;
+    width: min(320px, 88vw);
+    height: 100vh;
+    background: var(--paper);
+    border-right: 1px solid var(--rule);
+    padding: 32px 22px 20px;
+    z-index: 30;
+    transform: translateX(-100%);
+    transition: transform 0.28s cubic-bezier(0.2, 0.6, 0.2, 1);
+    box-shadow: 10px 0 40px rgba(27,29,32,0.08);
+  }
+  nav.chapters.open { transform: translateX(0); }
+  main.content { padding: 28px 0 120px; max-width: 100%; }
+  .chapter-header h1 { font-size: 38px; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .stat-card { border-left: none; border-top: 1px solid var(--rule-2); }
+  .stat-card:nth-child(-n+2) { border-top: none; }
+}
 </style>
 </head>
 <body>
-<header class="site">
-  <h1>Apotek &amp; legemidler — spør om kildene</h1>
-  <p class="tagline">Norske rapporter om apotek, legemidler, fastlege og pasienterfaringer. Svar med sidehenvisninger.</p>
-</header>
 
-<main id="main">
-  <form class="ask" id="ask-form" autocomplete="off">
-    <textarea id="q" placeholder="Still et spørsmål om apotek, legemiddelbruk, pasienttilfredshet, polyfarmasi …"></textarea>
-    <div class="row">
-      <div class="hint">Enter sender • Shift+Enter = linjeskift</div>
-      <button class="submit" type="submit">Spør</button>
+<div class="mobile-toolbar">
+  <button id="mobile-nav-btn">☰ Kapitler</button>
+  <span class="current" id="mobile-current">Oversikt</span>
+  <button id="mobile-ai-btn">Spør AI</button>
+</div>
+
+<div class="backdrop" id="backdrop"></div>
+
+<div class="app" id="app">
+
+  <!-- ========== LEFT: Chapter navigation ========== -->
+  <nav class="chapters" id="nav" aria-label="Kapitler">
+    <div class="brand">
+      <div class="brand-mark">Apotek,&nbsp;legemidler og&nbsp;pasient</div>
+      <div class="brand-sub">En statusrapport · v1</div>
     </div>
-  </form>
+    <ol class="chapter-list" id="nav-list"></ol>
+    <div class="nav-foot">
+      Tall og sitater fra FHI, OECD, Riksrevisjonen, Helsetilsynet, DMP, Apotekforeningen og PGEU. Svarene i AI-panelet genereres av Claude basert på utdrag fra disse kildene.
+    </div>
+  </nav>
 
-  <div id="view"></div>
-</main>
+  <!-- ========== CENTER: Chapter content ========== -->
+  <main class="content">
+    <article id="chapter-root"></article>
+  </main>
 
-<footer class="site">
-  Kildene er offentlige rapporter fra FHI, OECD, Riksrevisjonen, Helsetilsynet, Pasientsikkerhetsprogrammet, DMP, Apotekforeningen og PGEU, samt to systematiske oversikter fra BMJ Open og Annals of Pharmacotherapy. Svarene genereres av Claude basert på utdrag fra disse, med inline kildehenvisninger.
-</footer>
+  <!-- ========== RIGHT: AI panel ========== -->
+  <aside class="ai-panel" id="ai-panel" aria-label="AI-assistent">
+    <header class="ai-header">
+      <div class="eyebrow">Utforsk med AI</div>
+      <h2>Still et spørsmål</h2>
+      <div class="ai-sub">Svar hentes fra kildene som ligger til grunn for rapporten, med sidereferanser.</div>
+    </header>
+    <div class="ai-body" id="ai-body"></div>
+    <div class="ai-input-wrap">
+      <form class="ai-input" id="ai-form" autocomplete="off">
+        <textarea id="ai-q" rows="2" placeholder="F.eks. «Hvor ofte blir medisinlister samstemt ved innleggelse?»"></textarea>
+        <div class="ai-input-row">
+          <span class="ai-input-hint">Enter for å sende · Shift+Enter for linjeskift</span>
+          <button class="ai-send" type="submit">Spør</button>
+        </div>
+      </form>
+    </div>
+  </aside>
+
+</div>
 
 <script>
-  // ---------- config ----------
-  // If you deploy this on a domain that can't read anvil.app's cookies, no
-  // change is needed — the endpoints are CORS-enabled.
-  const API_BASE = "https://apotek-bakgrunn.anvil.app/_/api";
+/* ===========================================================================
+   Configuration
+   =========================================================================== */
+const API_BASE = "https://apotek-bakgrunn.anvil.app/_/api";
+const API_KEY_BUILT_IN = "REPLACE_WITH_PUBLIC_KEY";
+const LS_KEY = "apotek-qa:api-key";
 
-  // If you want to hardcode the key (recommended for a public site), replace
-  // "REPLACE_WITH_PUBLIC_KEY" with the value of Anvil secret API_KEY_PUBLIC.
-  // Otherwise the site falls back to localStorage and shows a setup prompt
-  // on first load.
-  const API_KEY_BUILT_IN = "REPLACE_WITH_PUBLIC_KEY";
-  const LS_KEY = "apotek-qa:api-key";
-  function getApiKey() {
-    if (API_KEY_BUILT_IN && API_KEY_BUILT_IN !== "REPLACE_WITH_PUBLIC_KEY") {
-      return API_KEY_BUILT_IN;
-    }
-    return localStorage.getItem(LS_KEY) || "";
+function getApiKey() {
+  if (API_KEY_BUILT_IN && API_KEY_BUILT_IN !== "REPLACE_WITH_PUBLIC_KEY") return API_KEY_BUILT_IN;
+  return localStorage.getItem(LS_KEY) || "";
+}
+
+/* ===========================================================================
+   Chapter data — authored Norwegian prose + references to facts by id
+   =========================================================================== */
+const CHAPTERS = [
+  {
+    id: "oversikt", num: "01", title: "Oversikt",
+    custom: true,
+  },
+  {
+    id: "legemiddelbruk", num: "02", title: "Legemiddelbruk",
+    prose: [
+      `Polyfarmasi — bruk av fem eller flere faste legemidler samtidig — er hovedrisikofaktor for legemiddelrelaterte problemer. Blant voksne fastlege-pasienter i baselinemålingen 2023–24 (n = 58 987) bruker 15 prosent fem eller flere medisiner daglig, mens 1,2 prosent tar ti eller flere.`,
+      `Disse pasientene har dokumentert høy risiko for legemiddelinteraksjoner, fall og uhensiktsmessig forskrivning. De er også gruppen som tjener mest på systematiske legemiddelgjennomganger. I andre enden av skalaen oppgir 23 prosent at de ikke bruker noen faste medisiner — en gruppe som sjelden trenger oppfølging på legemiddelbruk.`,
+      `Ser vi bare på pasienter med kroniske tilstander (PaRIS 2022, 45+), stiger andelen med tre eller fire medisiner markant. Det er nettopp blant de eldre og kronikerne at polyfarmasi er mest utbredt — og der gevinsten av god rådgivning og regelmessig gjennomgang er størst.`,
+    ],
+    factIds: ["fastlege-antall-medisiner"],
+    questions: [
+      "Hva sier Riksrevisjonen om polyfarmasi og legemiddelbruk hos eldre?",
+      "Hvilke konsekvenser har polyfarmasi for pasientsikkerhet og samfunnsøkonomi?",
+      "Hvordan prioriterer norske apotek og fastleger mellom pasienter med mange medisiner?",
+    ],
+  },
+  {
+    id: "radgivning", num: "03", title: "Rådgivning og informasjon",
+    prose: [
+      `God rådgivning er avgjørende for riktig legemiddelbruk. I baselinemålingen oppgir 62 prosent av fastlege-pasienter som bruker medisiner at legen i stor eller svært stor grad gir tilstrekkelig informasjon om bruk og bivirkninger. 13 prosent opplever informasjonen som utilstrekkelig — og blant disse er det mange som er usikre på hva medisinen gjør.`,
+      `OECDs PaRIS-undersøkelse bekrefter bildet: blant voksne 45+ som bruker medisiner sier kun 12 prosent at de er «veldig trygge» på å gjenkjenne bivirkninger, mens 15 prosent ikke er trygge i det hele tatt. Dette er målgruppen der strukturert apotekveiledning — f.eks. Medisinstart — har størst potensial, ifølge både PGEU og internasjonal forskning.`,
+      `Informasjonsgapet er ikke jevnt fordelt. Eldre, pasienter med lavere utdanning og de som bruker mange medisiner samtidig rapporterer oftere at informasjonen er for knapp. Det er også her feilbruk og lav etterlevelse oftest oppstår.`,
+    ],
+    factIds: ["fastlege-informasjon-bivirkninger", "paris-trygg-bivirkninger"],
+    questions: [
+      "Hvilke tjenester tilbyr norske apotek i 2025 for å støtte legemiddelbruk?",
+      "Hvordan kan fastlegen og apoteket sammen hjelpe pasienter med medisiner?",
+      "Hva sier kildene om Medisinstart og annen veiledning for nye brukere av legemidler?",
+    ],
+  },
+  {
+    id: "oppfolging", num: "04", title: "Oppfølging og gjennomgang",
+    prose: [
+      `Oppdaterte medisinlister er grunnlaget for trygg legemiddelbruk. Likevel oppgir kun 17 prosent av voksne fastlege-pasienter at legen alltid eller ofte skriver ut en oppdatert liste ved endringer. Nær 40 prosent synes spørsmålet ikke er aktuelt — ofte fordi de ikke har hatt endringer.`,
+      `For pasienter med kroniske tilstander og minst én fast medisin (PaRIS 2022, n = 5 929) er dekningen bedre: 63 prosent har fått medisingjennomgang det siste året. Men OECDs country-note påpeker at Norge ligger under snittet: for pasienter med tre eller flere medisiner er andelen 68 prosent i Norge mot 75 prosent i OECD-snittet.`,
+      `Pasientsikkerhetsprogrammet «I trygge hender 24/7» har gjennom flere år arbeidet med strukturert samstemming av legemiddellister ved overganger i helsetjenesten. FHIs oppsummering av systematiske oversikter konkluderer med at samstemming sannsynligvis reduserer utilsiktede avvik, selv om evidensen for klinisk betydning er begrenset.`,
+    ],
+    factIds: ["fastlege-medisineliste", "paris-medisingjennomgang"],
+    questions: [
+      "Hva er forskjellen mellom legemiddelsamstemming og legemiddelgjennomgang?",
+      "Hva sier Pasientsikkerhetsprogrammet om samstemming og legemiddelgjennomgang?",
+      "Hvorfor ligger Norge under OECD-snittet i dekning av medisingjennomgang?",
+    ],
+  },
+  {
+    id: "feilmedisinering", num: "05", title: "Feilmedisinering",
+    prose: [
+      `Pasientrapportert feilmedisinering er en sentral sikkerhetsindikator. I fastlege-baselinemålingen oppgir 4,2 prosent av 59 006 voksne pasienter at de har opplevd feil medisiner eller annen feilmedisinering fra fastlegen siste to år — 3,4 prosent én gang, 0,8 prosent flere ganger. Overført til Norges voksne befolkning tilsvarer det i størrelsesorden 200 000 personer.`,
+      `86 prosent har aldri opplevd det. De resterende svarer enten «vet ikke» (5 %) eller «ikke aktuelt» (5 %) — typisk pasienter uten egen medisinbruk. Tallet er selvrapportert, og fanger dermed ikke feil som pasienten selv ikke er klar over.`,
+      `Helsetilsynets tilsynsrapporter og meldeordningen har lenge pekt på systemsvikt i legemiddelhåndtering som en gjenganger — særlig i kommunehelsetjenesten. Internasjonal forskning (Cutler, Watanabe) antyder at samfunnskostnaden ved ikke-optimal legemiddelterapi er betydelig: opp mot 16 prosent av helseutgiftene i USA.`,
+    ],
+    factIds: ["fastlege-feilmedisinering"],
+    questions: [
+      "Hva sier Helsetilsynet om uønskede legemiddelhendelser og meldeordningen?",
+      "Hvilke typer feilmedisinering er mest alvorlige ifølge kildene?",
+      "Hvordan jobber Pasientsikkerhetsprogrammet for å forebygge legemiddelfeil?",
+    ],
+  },
+  {
+    id: "okonomi", num: "06", title: "Økonomi og støttebehov",
+    prose: [
+      `De samfunnsøkonomiske konsekvensene av suboptimal legemiddelbruk er betydelige. Watanabe, McInnis og Hirsch (2018) estimerer at ikke-optimalisert legemiddelterapi i USA koster 528 milliarder dollar årlig — rundt 16 prosent av totale helseutgifter. Cutler et al. (2018) finner i en systematisk oversikt at kostnaden ved manglende etterlevelse varierer sterkt mellom diagnosegrupper, men er konsistent høy.`,
+      `For norske pasienter er direkte kostnadsbarrierer mindre utbredt enn i USA, men ikke fraværende: 2 prosent av voksne 45+ oppgir at de ofte eller alltid har unnlatt å ta reseptbelagt medisin pga. kostnad. 6 prosent har gjort det noen ganger. Dette er små andeler, men gjelder reelle pasienter som ikke får den behandlingen legen har forskrevet.`,
+      `3 prosent av voksne 45+ trenger praktisk støtte til pleie og behandling — inkludert å administrere medisiner. Denne gruppen er en naturlig målgruppe for multidose, hjemmetjeneste og tettere apotek-oppfølging.`,
+    ],
+    factIds: ["paris-kostnad-ikke-bruk", "paris-pleiestotte"],
+    questions: [
+      "Hva er samfunnskostnaden av ikke-optimalisert legemiddelbruk ifølge Watanabe og Cutler?",
+      "Hvor mange nordmenn bruker multidose, og hvilken effekt har ordningen?",
+      "Hvordan påvirker egenandeler og refusjonsordninger legemiddelbruk i Norge?",
+    ],
+  },
+  {
+    id: "kilder", num: "07", title: "Kilder",
+    custom: true,
+  },
+];
+
+/* ===========================================================================
+   Source list (authored in sources.yaml; hand-summarised here)
+   =========================================================================== */
+const SOURCES = [
+  { group: "Pasienterfaringsundersøkelser (FHI)", items: [
+    { title: "Den norske fastlegetjenesten 2023–2024 — baselinemåling på kommunenivå", meta: "FHI, 2025 · n = 59 193" },
+    { title: "OECDs Patient-Reported Indicator Surveys (PaRIS) — norsk resultatrapport", meta: "FHI / OECD, 2025 · n = 8 683 (voksne 45+)" },
+    { title: "Pasienterfaringer med fastlegen og fastlegekontoret 2021–22", meta: "FHI PASOPP 2022:566" },
+    { title: "Nasjonale resultater — pasienterfaringer med sykehus 2021", meta: "FHI" },
+    { title: "Utvikling av spørsmål om barn og unges erfaringer med legemidler (BUP)", meta: "FHI PASOPP 2023:979" },
+    { title: "Legemidler.xlsx — sammenstilte tabeller fra fastlege- og PaRIS-dataene", meta: "FHI (prosjektgrunnlag)" },
+  ]},
+  { group: "Policy og tilsyn", items: [
+    { title: "Riksrevisjonens undersøkelse av tilgjengelighet og kvalitet i eldreomsorgen", meta: "Dokument 3:5 (2018–2019) · Riksrevisjonen" },
+    { title: "Pasientsikkerhetsprogrammet «I trygge hender 24/7» — sluttrapport", meta: "Helsedirektoratet" },
+    { title: "Strategi for Pasientsikkerhetsprogrammet 2014–2018", meta: "Helse- og omsorgsdepartementet" },
+    { title: "Legemiddelsamstemming og legemiddelgjennomgang — høringsutkast", meta: "Helsedirektoratet / Legeforeningen" },
+    { title: "Helsetilsynets rapport 4/2019 — Hva om legens forordning av legemiddel er feil?", meta: "Statens helsetilsyn" },
+    { title: "Evaluering av apotekavansen 2024", meta: "Direktoratet for medisinske produkter (DMP)" },
+  ]},
+  { group: "Bransje og internasjonalt", items: [
+    { title: "Apotekforeningen — Årsrapport 2025", meta: "Apotekforeningen" },
+    { title: "Health at a Glance 2023", meta: "OECD" },
+    { title: "Norway: Country Health Profile 2023", meta: "OECD / European Observatory" },
+    { title: "PGEU Annual Report 2025 — The value of Europe's pharmacy network", meta: "Pharmaceutical Group of the European Union" },
+  ]},
+  { group: "Systematiske oversikter (internasjonalt)", items: [
+    { title: "Watanabe, McInnis, Hirsch (2018): Cost of Prescription Drug–Related Morbidity and Mortality", meta: "Annals of Pharmacotherapy" },
+    { title: "Cutler et al. (2018): Economic impact of medication non-adherence by disease groups", meta: "BMJ Open — lastes ned manuelt" },
+  ]},
+];
+
+/* ===========================================================================
+   State
+   =========================================================================== */
+let factsIndex = {};     // { id -> fact }
+let factsPromise = null; // in-flight fetch
+let currentChapterId = "oversikt";
+let aiState = { mode: "idle", question: null, data: null, error: null };
+
+/* ===========================================================================
+   DOM helpers
+   =========================================================================== */
+const navListEl = document.getElementById("nav-list");
+const rootEl    = document.getElementById("chapter-root");
+const aiBodyEl  = document.getElementById("ai-body");
+const aiFormEl  = document.getElementById("ai-form");
+const aiQEl     = document.getElementById("ai-q");
+const aiSendEl  = aiFormEl.querySelector(".ai-send");
+const backdrop  = document.getElementById("backdrop");
+const navEl     = document.getElementById("nav");
+const aiPanelEl = document.getElementById("ai-panel");
+
+function esc(s) { return String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+/* ===========================================================================
+   API
+   =========================================================================== */
+async function api(path, init = {}) {
+  const key = getApiKey();
+  if (!key) throw new Error("no_api_key");
+  const headers = Object.assign({ "X-API-Key": key }, init.headers || {});
+  if (init.body && !(init.body instanceof FormData)) headers["Content-Type"] = "application/json; charset=utf-8";
+  const resp = await fetch(API_BASE + path, Object.assign({}, init, { headers }));
+  if (!resp.ok) {
+    let detail = "";
+    try { detail = (await resp.json()).error || ""; } catch (_) {}
+    throw new Error(`HTTP ${resp.status}${detail ? ": " + detail : ""}`);
   }
+  return resp.json();
+}
 
-  // ---------- state ----------
-  const view = document.getElementById("view");
-  const form = document.getElementById("ask-form");
-  const q = document.getElementById("q");
-  const submitBtn = form.querySelector("button.submit");
+function fetchFactsIndex() {
+  if (factsPromise) return factsPromise;
+  factsPromise = api("/facts").then(d => {
+    (d.facts || []).forEach(f => { if (f.id) factsIndex[f.id] = f; });
+    return factsIndex;
+  }).catch(e => {
+    factsPromise = null;
+    throw e;
+  });
+  return factsPromise;
+}
 
-  let examplesCache = null;
-  let factsCache = null;
-
-  // ---------- api helpers ----------
-  async function api(path, init = {}) {
-    const key = getApiKey();
-    if (!key) throw new Error("no_api_key");
-    const headers = Object.assign({ "X-API-Key": key }, init.headers || {});
-    if (init.body && !(init.body instanceof FormData)) {
-      headers["Content-Type"] = "application/json; charset=utf-8";
-    }
-    const resp = await fetch(API_BASE + path, Object.assign({}, init, { headers }));
-    if (!resp.ok) {
-      let detail = "";
-      try { detail = (await resp.json()).error || ""; } catch (_) {}
-      throw new Error(`HTTP ${resp.status}${detail ? ": " + detail : ""}`);
-    }
-    return resp.json();
+function maybeAuthError(msg) {
+  if (!msg) return false;
+  if (msg === "no_api_key") { renderSetup(); return true; }
+  if (msg.indexOf("401") !== -1) {
+    localStorage.removeItem(LS_KEY);
+    renderSetup("API-nøkkelen ble avvist (401). Lim inn en gyldig verdi.");
+    return true;
   }
+  return false;
+}
 
-  async function fetchExamples() {
-    if (examplesCache) return examplesCache;
-    const d = await api("/examples");
-    examplesCache = d.groups || [];
-    return examplesCache;
-  }
-  async function fetchFacts() {
-    if (factsCache) return factsCache;
-    const d = await api("/facts");
-    factsCache = d.facts || [];
-    return factsCache;
-  }
-  function askQuestion(question) {
-    return api("/ask", { method: "POST", body: JSON.stringify({ question }) });
-  }
+/* ===========================================================================
+   Setup screen
+   =========================================================================== */
+function renderSetup(err) {
+  document.getElementById("app").style.display = "none";
+  document.querySelector(".mobile-toolbar").style.display = "none";
+  const existing = document.getElementById("setup-root");
+  if (existing) existing.remove();
+  const root = document.createElement("div");
+  root.id = "setup-root";
+  root.className = "setup";
+  root.innerHTML = `
+    <div class="eyebrow" style="color:var(--accent)">Førstegangsoppsett</div>
+    <h2>API-nøkkel</h2>
+    <p>Denne siden snakker med en Anvil-tjeneste. Lim inn verdien fra Anvil-secreten <em>API_KEY_PUBLIC</em>. Nøkkelen lagres lokalt i nettleseren din (localStorage).</p>
+    <form id="setup-form">
+      <input type="text" id="setup-key" placeholder="API-nøkkel" autocomplete="off" />
+      <button type="submit">Lagre</button>
+    </form>
+    ${err ? `<div class="error">${esc(err)}</div>` : ""}
+  `;
+  document.body.appendChild(root);
+  document.getElementById("setup-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const v = document.getElementById("setup-key").value.trim();
+    if (!v) return;
+    localStorage.setItem(LS_KEY, v);
+    location.reload();
+  });
+  document.getElementById("setup-key").focus();
+}
 
-  // ---------- rendering ----------
-  function escapeHtml(s) {
-    return String(s).replace(/[&<>"']/g, (c) =>
-      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]
-    );
-  }
+/* ===========================================================================
+   Plotly rendering — editorial chart styling
+   =========================================================================== */
+const CHART_TEAL = "#2D524E";
+const CHART_SIENNA = "#A54D1F";
 
-  function renderAnswerText(text, maxN) {
-    // Replace [1], [2], ... with superscript chips; ignore [N] where N > maxN.
-    const esc = escapeHtml(text);
-    return esc.replace(/\[(\d+)\]/g, (m, nStr) => {
-      const n = parseInt(nStr, 10);
-      if (!n || n < 1 || n > maxN) return m;
-      return `<sup class="cite" data-n="${n}" title="Se kilde ${n}">${n}</sup>`;
+function plotLayout(yLabel, xLabel) {
+  return {
+    margin: { t: 12, r: 16, b: 52, l: 58 },
+    xaxis: {
+      title: { text: xLabel || "", font: { size: 11, family: "Instrument Sans, sans-serif", color: "#7A7E84" } },
+      tickfont: { size: 12, family: "Instrument Sans, sans-serif", color: "#4A4E54" },
+      gridcolor: "#E4E0D6",
+      linecolor: "#D4CFC3",
+      zeroline: false,
+    },
+    yaxis: {
+      title: { text: yLabel || "", font: { size: 11, family: "Instrument Sans, sans-serif", color: "#7A7E84" } },
+      tickfont: { size: 12, family: "Instrument Sans, sans-serif", color: "#4A4E54" },
+      gridcolor: "#E4E0D6",
+      linecolor: "#D4CFC3",
+      zeroline: false,
+      ticksuffix: "",
+    },
+    paper_bgcolor: "transparent",
+    plot_bgcolor: "transparent",
+    font: { family: "Source Serif 4, serif", color: "#1B1D20" },
+    showlegend: false,
+    bargap: 0.35,
+    barmode: "group",
+  };
+}
+
+function renderFactPlot(elId, fact) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  const series = (fact.series || []).filter(s => s && s.points && s.points.length);
+  const hasValues = series.some(s => s.points.some(p => Array.isArray(p) && p[1] != null));
+  if (!hasValues) {
+    el.innerHTML = `<div style="padding:40px 20px;border:1px dashed var(--rule);text-align:center;font-family:var(--sans);font-size:13px;color:var(--ink-3)">Tall ennå ikke fylt inn.</div>`;
+    return;
+  }
+  const ready = () => {
+    if (typeof Plotly === "undefined") { setTimeout(ready, 80); return; }
+    const type = fact.chart_type || "bar";
+    const traces = series.map((s, i) => {
+      const xs = s.points.filter(p => p[1] != null).map(p => p[0]);
+      const ys = s.points.filter(p => p[1] != null).map(p => p[1]);
+      const color = i === 0 ? CHART_TEAL : CHART_SIENNA;
+      if (type === "line") return { x: xs, y: ys, type: "scatter", mode: "lines+markers", name: s.name || "", line: { color, width: 2.5 }, marker: { color, size: 7 } };
+      return { x: xs, y: ys, type: "bar", name: s.name || "", marker: { color } };
     });
-  }
+    const layout = plotLayout(fact.y_label, fact.x_label);
+    if (type === "grouped-bar") layout.barmode = "group";
+    if (type === "stacked-bar") layout.barmode = "stack";
+    if (series.length > 1) layout.showlegend = true;
+    layout.legend = { orientation: "h", y: -0.22, font: { family: "Instrument Sans, sans-serif", size: 12 } };
+    Plotly.newPlot(el, traces, layout, { displayModeBar: false, responsive: true });
+  };
+  ready();
+}
 
-  function renderSetup(initialError) {
-    view.innerHTML = `
-      <div class="answer-wrap">
-        <p class="answer-question">Førstegangsoppsett</p>
-        <p class="answer-question-body">Denne siden trenger en API-nøkkel for å snakke med tjenesten.</p>
-        <p style="color: var(--text-muted); font-size: 14px;">
-          Lim inn verdien fra Anvil-secreten <code>API_KEY_PUBLIC</code>. Nøkkelen lagres lokalt i nettleseren din (localStorage).
-        </p>
-        <form id="setup-form" style="margin-top: 14px;">
-          <input type="text" id="setup-key" autocomplete="off" placeholder="API-nøkkel"
-            style="width: 100%; padding: 10px 12px; font-size: 15px; border: 1px solid var(--border-strong); border-radius: 8px; font-family: ui-monospace, monospace;"/>
-          <button class="submit" type="submit" style="margin-top: 10px; background: var(--accent); color: white; border: none; padding: 10px 22px; font-size: 15px; border-radius: 8px; cursor: pointer;">Lagre</button>
-        </form>
-        ${initialError ? `<div class="error" style="margin-top: 14px;">${escapeHtml(initialError)}</div>` : ""}
-      </div>
+function renderOversiktTeaser() {
+  const el = document.getElementById("plot-oversikt-teaser");
+  if (!el) return;
+  const ready = () => {
+    if (typeof Plotly === "undefined") { setTimeout(ready, 80); return; }
+    Plotly.newPlot(el, [{
+      x: ["Ingen", "1–2", "3–4", "5–9", "10+"],
+      y: [23.2, 37.5, 24.3, 13.7, 1.2],
+      type: "bar",
+      marker: { color: CHART_TEAL },
+      hovertemplate: "%{x}: %{y:.1f}%<extra></extra>",
+    }], plotLayout("Andel pasienter (%)"), { displayModeBar: false, responsive: true });
+  };
+  ready();
+}
+
+/* ===========================================================================
+   Navigation rendering
+   =========================================================================== */
+function renderNav() {
+  navListEl.innerHTML = CHAPTERS.map(c => `
+    <li class="chapter-item${c.id === currentChapterId ? " active" : ""}" data-chapter="${c.id}" role="button" tabindex="0">
+      <span class="chapter-num">${c.num}</span>
+      <span class="chapter-title">${esc(c.title)}</span>
+    </li>
+  `).join("");
+}
+
+/* ===========================================================================
+   Chapter renderers
+   =========================================================================== */
+function renderChapter() {
+  const c = CHAPTERS.find(x => x.id === currentChapterId) || CHAPTERS[0];
+  document.getElementById("mobile-current").textContent = c.title;
+  window.scrollTo({ top: 0, behavior: "instant" });
+
+  if (c.id === "oversikt") renderOversikt(c);
+  else if (c.id === "kilder") renderKilder(c);
+  else renderStandard(c);
+
+  rootEl.classList.remove("chapter-enter");
+  void rootEl.offsetWidth;
+  rootEl.classList.add("chapter-enter");
+
+  // refresh AI suggestions (only when idle)
+  if (aiState.mode === "idle") renderAI();
+}
+
+function chapterHeader(c) {
+  return `
+    <header class="chapter-header">
+      <div class="eyebrow">Kapittel ${c.num}</div>
+      <h1>${esc(c.title)}</h1>
+    </header>
+  `;
+}
+
+function figuresMarkup(c, factOffset = 1) {
+  if (!c.factIds || !c.factIds.length) return "";
+  return c.factIds.map((fid, i) => {
+    const f = factsIndex[fid];
+    const title = f ? esc(f.title) : "Laster figur …";
+    const intro = f && f.intro ? esc(f.intro) : "";
+    const src = f && f.source ? f.source : null;
+    const srcStr = src ? (
+      esc(src.document || "") +
+      (src.sheet ? ` — ark «${esc(src.sheet)}»` : "") +
+      (src.page != null ? `, s. ${esc(src.page)}` : "") +
+      (src.note ? ` · <em>${esc(src.note)}</em>` : "")
+    ) : "";
+    return `
+      <figure class="chart-block" data-fact-id="${esc(fid)}">
+        <div class="fig-label">Figur ${c.num}.${i + factOffset}</div>
+        ${intro ? `<p class="prose" style="margin:0 0 16px"><em>${intro}</em></p>` : ""}
+        <div class="chart" id="plot-${esc(fid)}"></div>
+        <figcaption>${title}. ${srcStr}</figcaption>
+      </figure>
     `;
-    const f = document.getElementById("setup-form");
-    f.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const v = document.getElementById("setup-key").value.trim();
-      if (!v) return;
-      localStorage.setItem(LS_KEY, v);
-      renderHome();
-    });
-    document.getElementById("setup-key").focus();
-  }
+  }).join("");
+}
 
-  function renderHome() {
-    if (!getApiKey()) { renderSetup(); return; }
-    view.innerHTML = `
-      <section id="facts-section">
-        <h2>Tall og figurer</h2>
-        <div id="facts-list"><div class="loading"><span class="spinner"></span> Laster figurer …</div></div>
-      </section>
-      <section id="examples-section">
-        <h2>Andre eksempelspørsmål</h2>
-        <div id="examples-list"><div class="loading"><span class="spinner"></span> Laster eksempler …</div></div>
-      </section>
-    `;
-    loadFacts();
-    loadExamples();
-  }
-
-  function maybeAuthError(msg) {
-    if (msg && msg.indexOf("401") !== -1) {
-      localStorage.removeItem(LS_KEY);
-      renderSetup("API-nøkkelen ble avvist (401). Lim inn en gyldig nøkkel.");
-      return true;
-    }
-    if (msg === "no_api_key") {
-      renderSetup();
-      return true;
-    }
-    return false;
-  }
-
-  async function loadExamples() {
-    const container = document.getElementById("examples-list");
+function renderStandard(c) {
+  const proseHtml = (c.prose || []).map(p => `<p>${p}</p>`).join("");
+  const questionsHtml = (c.questions || []).length ? `
+    <section class="ask-block">
+      <h3>Utforsk videre</h3>
+      <ul class="ask-list">
+        ${c.questions.map(q => `<li><button class="ask-btn" data-q="${esc(q)}">${esc(q)}</button></li>`).join("")}
+      </ul>
+    </section>
+  ` : "";
+  rootEl.innerHTML = `
+    ${chapterHeader(c)}
+    <div class="prose">${proseHtml}</div>
+    ${figuresMarkup(c)}
+    ${questionsHtml}
+  `;
+  // Ensure facts are loaded, then render any plots
+  (async () => {
     try {
-      const groups = await fetchExamples();
-      if (!groups.length) {
-        container.innerHTML = '<div class="error">Ingen eksempelspørsmål funnet.</div>';
-        return;
+      if (!factsPromise) await fetchFactsIndex();
+      else await factsPromise;
+    } catch (e) {
+      if (maybeAuthError(e.message)) return;
+    }
+    (c.factIds || []).forEach(fid => {
+      const f = factsIndex[fid];
+      if (f) {
+        // Re-render caption now that we have title/source
+        const fig = rootEl.querySelector(`figure[data-fact-id="${fid}"]`);
+        if (fig) {
+          const idx = c.factIds.indexOf(fid);
+          fig.outerHTML = figuresMarkup(c).split("\n").filter(Boolean).join("\n"); // simple: just re-render all
+        }
+        renderFactPlot(`plot-${fid}`, f);
       }
-      container.innerHTML = groups.map(g => `
-        <div class="examples-group">
-          <h3>${escapeHtml(g.group || "")}</h3>
-          ${g.description ? `<p class="desc">${escapeHtml(g.description)}</p>` : ""}
-          <ul>
-            ${(g.questions || []).map(q => `
-              <li><button class="example-q" data-q="${escapeHtml(q)}">${escapeHtml(q)}</button></li>
-            `).join("")}
+    });
+    // After re-render, run again to catch any deferred plot divs
+    (c.factIds || []).forEach(fid => {
+      const f = factsIndex[fid];
+      if (f) renderFactPlot(`plot-${fid}`, f);
+    });
+  })();
+}
+
+function renderOversikt(c) {
+  rootEl.innerHTML = `
+    ${chapterHeader(c)}
+    <div class="prose">
+      <p>Nordmenn bruker stadig mer legemidler. I 2024 omsatte apotekene reseptpliktige legemidler for 39 milliarder kroner — nær 10 prosent mer enn året før. Men tallet sier lite om <em>kvaliteten</em> på legemiddelbruken: om pasientene forstår hva de tar, om oppfølgingen fungerer, og hvor ofte noe går galt.</p>
+      <p>Denne rapporten samler funn fra de største norske og internasjonale undersøkelsene om pasienters erfaringer med legemidler — med vekt på rådgivning, oppfølging, feilmedisinering og pasienttilfredshet.</p>
+    </div>
+
+    <section class="stats-grid" aria-label="Nøkkeltall">
+      <div class="stat-card">
+        <span class="stat-num" data-target="15">0</span><span class="stat-unit">%</span>
+        <div class="stat-label">Tar 5+ medisiner</div>
+        <div class="stat-sub">Polyfarmasi blant voksne fastlege-pasienter (18+)</div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-num" data-target="13">0</span><span class="stat-unit">%</span>
+        <div class="stat-label">Får for lite info</div>
+        <div class="stat-sub">Om bruk og bivirkninger fra fastlegen</div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-num" data-target="4">0</span><span class="stat-unit">%</span>
+        <div class="stat-label">Opplevde feil</div>
+        <div class="stat-sub">Feilmedisinering siste 2 år (selvrapportert)</div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-num" data-target="63">0</span><span class="stat-unit">%</span>
+        <div class="stat-label">Fikk gjennomgang</div>
+        <div class="stat-sub">Medisingjennomgang siste 12 mnd, kronikere 45+</div>
+      </div>
+    </section>
+
+    <figure class="chart-block">
+      <div class="fig-label">Figur 1.1</div>
+      <div class="chart" id="plot-oversikt-teaser"></div>
+      <figcaption>Andel voksne fastlege-pasienter per antall faste medisiner. <em>FHI baselinemåling 2023–24, n = 58 987.</em></figcaption>
+    </figure>
+
+    <p class="reading-hint">Les videre via kapitlene til venstre, eller still et konkret spørsmål i panelet til høyre.</p>
+  `;
+  // Count-up + teaser chart
+  setTimeout(animateStats, 80);
+  renderOversiktTeaser();
+}
+
+function renderKilder(c) {
+  const groups = SOURCES.map(g => `
+    <div class="source-group-label">${esc(g.group)}</div>
+    <ol class="sources-list">
+      ${g.items.map((s, i) => `
+        <li>
+          <span class="source-n">${String(i + 1).padStart(2, "0")}</span>
+          <span class="source-body">
+            <span class="source-title">${esc(s.title)}</span>
+            <span class="source-meta">${esc(s.meta)}</span>
+          </span>
+        </li>
+      `).join("")}
+    </ol>
+  `).join("");
+  rootEl.innerHTML = `
+    ${chapterHeader(c)}
+    <div class="prose">
+      <p>Rapporten bygger på 19 offentlige kilder — nasjonale pasientundersøkelser (FHI), tilsyns- og policy-dokumenter, bransjestatistikk og to internasjonale systematiske oversikter. Hver sitering i AI-panelet peker til den opprinnelige kilden med sidereferanse.</p>
+    </div>
+    ${groups}
+  `;
+}
+
+/* ===========================================================================
+   Count-up animation for stat cards
+   =========================================================================== */
+function animateStats() {
+  const els = rootEl.querySelectorAll(".stat-num[data-target]");
+  els.forEach(el => {
+    const target = parseInt(el.dataset.target, 10);
+    if (!target) return;
+    const dur = 1100;
+    const start = performance.now();
+    function tick(now) {
+      const p = Math.min(1, (now - start) / dur);
+      const eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(target * eased);
+      if (p < 1) requestAnimationFrame(tick);
+      else el.textContent = target;
+    }
+    requestAnimationFrame(tick);
+  });
+}
+
+/* ===========================================================================
+   AI panel
+   =========================================================================== */
+function renderAI() {
+  if (aiState.mode === "idle") renderAIIdle();
+  else if (aiState.mode === "loading") renderAILoading();
+  else if (aiState.mode === "answered") renderAIAnswered();
+}
+
+function renderAIIdle() {
+  const c = CHAPTERS.find(x => x.id === currentChapterId);
+  const qs = (c && c.questions) || [];
+  aiBodyEl.innerHTML = `
+    <div class="ai-idle">
+      <div class="ai-intro">Svar blir generert av Claude basert på utdrag fra kildene — med inline sidehenvisninger.</div>
+      ${qs.length ? `
+        <div class="ai-suggest-label">Forslag fra dette kapitlet</div>
+        <ul class="ai-suggest-list">
+          ${qs.map(q => `<li><button class="ai-suggest" data-q="${esc(q)}">${esc(q)}</button></li>`).join("")}
+        </ul>
+      ` : ""}
+      ${aiState.error ? `<div class="ai-error">${esc(aiState.error)}</div>` : ""}
+    </div>
+  `;
+}
+
+function renderAILoading() {
+  aiBodyEl.innerHTML = `
+    <div class="ai-loading">
+      <div class="ai-q-echo">Spørsmål</div>
+      <p class="ai-q-text">${esc(aiState.question)}</p>
+      <div class="ai-spinner">Leser kildene og formulerer svar …</div>
+    </div>
+  `;
+}
+
+function renderAIAnswered() {
+  const d = aiState.data || {};
+  const citations = d.citations || [];
+  const maxN = Math.max(0, ...citations.map(c => c.n || 0));
+  const answerHtml = renderAnswerText(d.answer || "", maxN);
+  const citeList = citations.map(c => `
+    <div class="ai-citation" id="cite-${c.n}">
+      <div class="ai-cite-n">${c.n}</div>
+      <div class="ai-cite-body">
+        <div class="ai-cite-doc">${esc(c.document || "")}
+          ${c.page != null ? `<span class="ai-cite-page">s. ${esc(c.page)}</span>` : ""}
+        </div>
+        ${c.snippet ? `<div class="ai-cite-snippet">${esc(c.snippet)}</div>` : ""}
+      </div>
+    </div>
+  `).join("");
+  const followups = (d.suggested_followups || []).slice(0, 3);
+  aiBodyEl.innerHTML = `
+    <div class="ai-answered">
+      <div class="ai-q-echo">Spørsmål</div>
+      <p class="ai-q-text">${esc(aiState.question)}</p>
+      <div class="ai-answer">${answerHtml}</div>
+      ${citations.length ? `
+        <div class="ai-citations">
+          <h4>Kilder</h4>
+          ${citeList}
+        </div>
+      ` : ""}
+      ${followups.length ? `
+        <div class="ai-followups">
+          <h4>Grav videre</h4>
+          <ul class="ai-suggest-list">
+            ${followups.map(q => `<li><button class="ai-suggest" data-q="${esc(q)}">${esc(q)}</button></li>`).join("")}
           </ul>
         </div>
-      `).join("");
-    } catch (e) {
-      if (maybeAuthError(e.message)) return;
-      container.innerHTML = `<div class="error">Kunne ikke laste eksempler: ${escapeHtml(e.message)}</div>`;
+      ` : ""}
+      <button class="ai-reset" id="ai-reset">← Tilbake til forslag</button>
+    </div>
+  `;
+}
+
+function renderAnswerText(text, maxN) {
+  const t = esc(text);
+  return t.replace(/\[(\d+)\]/g, (m, nStr) => {
+    const n = parseInt(nStr, 10);
+    if (!n || n < 1 || n > maxN) return m;
+    return `<sup class="cite" data-n="${n}" title="Se kilde ${n}">${n}</sup>`;
+  });
+}
+
+async function askAI(question) {
+  if (!question) return;
+  aiState = { mode: "loading", question, data: null, error: null };
+  renderAI();
+  aiSendEl.disabled = true;
+  try {
+    const data = await api("/ask", { method: "POST", body: JSON.stringify({ question }) });
+    aiState = { mode: "answered", question, data, error: null };
+  } catch (e) {
+    if (maybeAuthError(e.message)) return;
+    aiState = { mode: "idle", question: null, data: null, error: "Kunne ikke hente svar: " + e.message };
+  } finally {
+    aiSendEl.disabled = false;
+    renderAI();
+    // Scroll AI body to top of answer
+    aiBodyEl.scrollTop = 0;
+  }
+}
+
+/* ===========================================================================
+   Event wiring
+   =========================================================================== */
+// Navigation click
+navListEl.addEventListener("click", (e) => {
+  const item = e.target.closest(".chapter-item");
+  if (!item) return;
+  const id = item.dataset.chapter;
+  if (!id || id === currentChapterId) return;
+  currentChapterId = id;
+  window.location.hash = id;
+  closeMobileNav();
+  renderNav();
+  renderChapter();
+});
+navListEl.addEventListener("keydown", (e) => {
+  if (e.key !== "Enter" && e.key !== " ") return;
+  const item = e.target.closest(".chapter-item");
+  if (!item) return;
+  e.preventDefault();
+  item.click();
+});
+
+// Global click: ask buttons, suggestions, citations, followups, reset
+document.addEventListener("click", (e) => {
+  const ask = e.target.closest(".ask-btn, .ai-suggest");
+  if (ask) {
+    const q = ask.getAttribute("data-q") || ask.textContent.trim();
+    askAI(q);
+    return;
+  }
+  const cite = e.target.closest(".ai-answer sup.cite");
+  if (cite) {
+    const n = cite.getAttribute("data-n");
+    const el = document.getElementById("cite-" + n);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      el.classList.remove("highlight");
+      void el.offsetWidth;
+      el.classList.add("highlight");
     }
+    return;
   }
-
-  async function loadFacts() {
-    const container = document.getElementById("facts-list");
-    try {
-      const facts = await fetchFacts();
-      if (!facts.length) {
-        container.innerHTML = '<div class="error">Ingen figurer tilgjengelig ennå.</div>';
-        return;
-      }
-      container.innerHTML = `
-        <div class="fact-picker">
-          <label for="fact-select">Velg et tema:</label>
-          <select id="fact-select">
-            ${facts.map((f, i) => `<option value="${i}">${escapeHtml(f.title || "")}</option>`).join("")}
-          </select>
-        </div>
-        <div id="fact-detail"></div>
-      `;
-      const sel = document.getElementById("fact-select");
-      const renderSelected = () => renderActiveFact(facts[parseInt(sel.value, 10) || 0]);
-      sel.addEventListener("change", renderSelected);
-      renderSelected();
-    } catch (e) {
-      if (maybeAuthError(e.message)) return;
-      container.innerHTML = `<div class="error">Kunne ikke laste figurer: ${escapeHtml(e.message)}</div>`;
-    }
+  if (e.target.id === "ai-reset") {
+    aiState = { mode: "idle", question: null, data: null, error: null };
+    renderAI();
+    aiQEl.focus();
+    return;
   }
+});
 
-  function renderActiveFact(f) {
-    const detail = document.getElementById("fact-detail");
-    if (!detail) return;
-    if (!f) { detail.innerHTML = ""; return; }
-    detail.innerHTML = `
-      <div class="fact-card" data-fact-id="${escapeHtml(f.id)}">
-        ${f.intro ? `<p class="intro">${escapeHtml(f.intro)}</p>` : ""}
-        <div class="fact-plot" id="plot-${escapeHtml(f.id)}"></div>
-        ${f.source ? `<div class="fact-source">
-          Kilde: ${escapeHtml(f.source.document || "")}${f.source.sheet ? ` — ark «${escapeHtml(f.source.sheet)}»` : ""}${f.source.page != null ? ", s. " + f.source.page : ""}
-          ${f.source.note ? `<div class="fact-source-note">${escapeHtml(f.source.note)}</div>` : ""}
-        </div>` : ""}
-        ${(f.questions && f.questions.length) ? `
-          <div class="fact-questions">
-            <div>Still et spørsmål om denne figuren:</div>
-            <ul>${f.questions.map(q => `
-              <li><button class="example-q" data-q="${escapeHtml(q)}">${escapeHtml(q)}</button></li>
-            `).join("")}</ul>
-          </div>` : ""}
-      </div>
-    `;
-    renderPlot(f);
-  }
-
-  function renderPlot(fact) {
-    const el = document.getElementById("plot-" + fact.id);
-    if (!el) return;
-    const series = (fact.series || []).filter(s => s && s.points && s.points.length);
-    const hasValues = series.some(s => s.points.some(p => Array.isArray(p) && p[1] != null));
-    if (!hasValues) {
-      el.outerHTML = `<div class="fact-placeholder">Tall ennå ikke fylt inn for denne figuren. Se kildedokumentet.</div>`;
-      return;
-    }
-    const ready = () => {
-      if (typeof Plotly === "undefined") { setTimeout(ready, 80); return; }
-      const type = fact.chart_type || "bar";
-      const traces = series.map(s => {
-        const xs = s.points.filter(p => p[1] != null).map(p => p[0]);
-        const ys = s.points.filter(p => p[1] != null).map(p => p[1]);
-        if (type === "line") {
-          return { x: xs, y: ys, type: "scatter", mode: "lines+markers", name: s.name || "" };
-        }
-        return { x: xs, y: ys, type: "bar", name: s.name || "" };
-      });
-      const layout = {
-        margin: { t: 10, r: 10, b: 48, l: 56 },
-        xaxis: { title: fact.x_label || "" },
-        yaxis: { title: fact.y_label || "" },
-        font: { family: "-apple-system, Segoe UI, Roboto, sans-serif", size: 12, color: "#1A2332" },
-        paper_bgcolor: "transparent",
-        plot_bgcolor: "transparent",
-        barmode: type === "grouped-bar" ? "group" : (type === "stacked-bar" ? "stack" : undefined),
-        legend: { orientation: "h", y: -0.2 },
-      };
-      Plotly.newPlot(el, traces, layout, { displayModeBar: false, responsive: true });
-    };
-    ready();
-  }
-
-  function renderAnswer(question, data) {
-    const citations = data.citations || [];
-    const maxN = Math.max(0, ...citations.map(c => c.n || 0));
-    const answerHtml = renderAnswerText(data.answer || "", maxN);
-
-    view.innerHTML = `
-      <div class="answer-wrap">
-        <p class="answer-question">Spørsmål</p>
-        <p class="answer-question-body">${escapeHtml(question)}</p>
-        <div class="answer-body">${answerHtml}</div>
-        ${citations.length ? `
-          <div class="citations">
-            <h4>Kilder</h4>
-            ${citations.map(c => `
-              <div class="citation" id="cite-${c.n}">
-                <div class="meta">
-                  <span class="n">${c.n}</span>
-                  <span class="doc">${escapeHtml(c.document || "")}</span>
-                  ${c.page != null ? `<span class="page">s. ${escapeHtml(c.page)}</span>` : ""}
-                  ${c.section ? `<span class="page">· ${escapeHtml(c.section)}</span>` : ""}
-                  ${c.note ? `<span class="note">${escapeHtml(c.note)}</span>` : ""}
-                </div>
-                ${c.snippet ? `<p class="snippet">${escapeHtml(c.snippet)}</p>` : ""}
-              </div>
-            `).join("")}
-          </div>
-        ` : ""}
-        ${(data.suggested_followups && data.suggested_followups.length) ? `
-          <div class="followups">
-            <h4>Grav videre</h4>
-            <ul>
-              ${data.suggested_followups.map(q => `
-                <li><button class="followup-q" data-q="${escapeHtml(q)}">${escapeHtml(q)}</button></li>
-              `).join("")}
-            </ul>
-          </div>
-        ` : ""}
-        <a href="#" class="back-link" id="back-link">← Still et nytt spørsmål</a>
-      </div>
-    `;
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
-
-  function showLoading(question) {
-    view.innerHTML = `
-      <div class="answer-wrap">
-        <p class="answer-question">Spørsmål</p>
-        <p class="answer-question-body">${escapeHtml(question)}</p>
-        <div class="loading"><span class="spinner"></span> Leser kildene og formulerer svar … (tar typisk 5–15 sekunder)</div>
-      </div>
-    `;
-  }
-
-  function showError(msg) {
-    view.innerHTML = `<div class="error">${escapeHtml(msg)}</div><a href="#" class="back-link" id="back-link">← Tilbake</a>`;
-  }
-
-  async function submit(question) {
-    if (!question) return;
-    q.value = question;
-    submitBtn.disabled = true;
-    showLoading(question);
-    try {
-      const data = await askQuestion(question);
-      renderAnswer(question, data);
-    } catch (e) {
-      if (maybeAuthError(e.message)) return;
-      showError("Beklager — noe gikk galt: " + e.message);
-    } finally {
-      submitBtn.disabled = false;
-    }
-  }
-
-  // ---------- events ----------
-  form.addEventListener("submit", (e) => {
+// AI input
+aiFormEl.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const v = aiQEl.value.trim();
+  if (!v) return;
+  aiQEl.value = "";
+  askAI(v);
+});
+aiQEl.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && !e.shiftKey) {
     e.preventDefault();
-    submit(q.value.trim());
-  });
+    aiFormEl.requestSubmit();
+  }
+});
 
-  q.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      form.requestSubmit();
-    }
-  });
+// Mobile toggles
+function closeMobileNav() { navEl.classList.remove("open"); backdrop.classList.remove("active"); }
+function closeMobileAi() { aiPanelEl.classList.remove("open"); backdrop.classList.remove("active"); }
+document.getElementById("mobile-nav-btn").addEventListener("click", () => {
+  navEl.classList.add("open"); backdrop.classList.add("active");
+});
+document.getElementById("mobile-ai-btn").addEventListener("click", () => {
+  aiPanelEl.classList.add("open"); backdrop.classList.add("active");
+});
+backdrop.addEventListener("click", () => { closeMobileNav(); closeMobileAi(); });
 
-  // Delegate: example-q, followup-q, citation chip, back link
-  document.addEventListener("click", (e) => {
-    const ex = e.target.closest("button.example-q, button.followup-q");
-    if (ex) {
-      const question = ex.getAttribute("data-q") || ex.textContent.trim();
-      submit(question);
-      return;
-    }
-    const cite = e.target.closest("sup.cite");
-    if (cite) {
-      const n = cite.getAttribute("data-n");
-      const el = document.getElementById("cite-" + n);
-      if (el) {
-        document.querySelectorAll(".citation.highlight").forEach(x => x.classList.remove("highlight"));
-        el.classList.add("highlight");
-        el.scrollIntoView({ behavior: "smooth", block: "center" });
-      }
-      return;
-    }
-    if (e.target.id === "back-link") {
-      e.preventDefault();
-      q.value = "";
-      renderHome();
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      q.focus();
-      return;
-    }
-  });
+// Hash nav (deep-links)
+window.addEventListener("hashchange", () => {
+  const id = (location.hash || "").slice(1);
+  if (id && CHAPTERS.some(c => c.id === id) && id !== currentChapterId) {
+    currentChapterId = id;
+    renderNav();
+    renderChapter();
+  }
+});
 
-  // ---------- init ----------
-  renderHome();
+/* ===========================================================================
+   Init
+   =========================================================================== */
+function init() {
+  if (!getApiKey()) { renderSetup(); return; }
+  const hash = (location.hash || "").slice(1);
+  if (hash && CHAPTERS.some(c => c.id === hash)) currentChapterId = hash;
+  renderNav();
+  renderChapter();
+  renderAI();
+  // Prefetch facts in background
+  fetchFactsIndex().catch(() => {});
+}
+
+init();
 </script>
 </body>
 </html>
