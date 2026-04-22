@@ -1,0 +1,717 @@
+<!doctype html>
+<html lang="no">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Apotek & legemidler — spør om kildene</title>
+<meta name="description" content="Still spørsmål om norske rapporter om apotek, legemidler, fastlege og pasienterfaringer. Svar med kildehenvisninger." />
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js" defer></script>
+<style>
+  :root {
+    --bg: #FAFBFC;
+    --surface: #FFFFFF;
+    --surface-subtle: #F3F5F8;
+    --border: #E4E9EE;
+    --border-strong: #CDD4DC;
+    --text: #1A2332;
+    --text-muted: #5A6876;
+    --accent: #2B5C8A;
+    --accent-dark: #1F466A;
+    --accent-soft: #E7EFF7;
+    --warn: #9B4A13;
+    --radius: 10px;
+    --shadow: 0 1px 2px rgba(17,24,39,0.04), 0 4px 12px rgba(17,24,39,0.04);
+    --shadow-strong: 0 2px 4px rgba(17,24,39,0.06), 0 12px 28px rgba(17,24,39,0.07);
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: var(--font); line-height: 1.55; }
+  body { min-height: 100vh; -webkit-font-smoothing: antialiased; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  button { font-family: inherit; cursor: pointer; }
+
+  header.site {
+    padding: 28px 24px 8px;
+    max-width: 860px;
+    margin: 0 auto;
+  }
+  header.site h1 {
+    font-size: 22px;
+    font-weight: 600;
+    margin: 0 0 4px;
+    letter-spacing: -0.01em;
+  }
+  header.site p.tagline {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+
+  main { max-width: 860px; margin: 0 auto; padding: 20px 24px 80px; }
+
+  /* Ask box */
+  form.ask {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    box-shadow: var(--shadow);
+    margin: 20px 0 28px;
+  }
+  form.ask textarea {
+    width: 100%;
+    min-height: 72px;
+    resize: vertical;
+    border: none;
+    outline: none;
+    font: inherit;
+    font-size: 16px;
+    background: transparent;
+    color: var(--text);
+  }
+  form.ask textarea::placeholder { color: var(--text-muted); }
+  form.ask .row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 8px;
+  }
+  form.ask .hint {
+    flex: 1;
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+  form.ask button.submit {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 10px 22px;
+    font-size: 15px;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: background 0.12s;
+  }
+  form.ask button.submit:hover { background: var(--accent-dark); }
+  form.ask button.submit:disabled { opacity: 0.55; cursor: wait; }
+
+  /* Section headings */
+  section { margin: 36px 0 0; }
+  section > h2 {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin: 0 0 14px;
+  }
+
+  /* Example questions — grouped cards */
+  .examples-group {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    margin-bottom: 12px;
+  }
+  .examples-group h3 {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0 0 4px;
+    color: var(--text);
+  }
+  .examples-group .desc {
+    margin: 0 0 10px;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  .examples-group ul { list-style: none; padding: 0; margin: 0; }
+  .examples-group li { margin: 6px 0; }
+  button.example-q, button.followup-q {
+    background: var(--surface-subtle);
+    border: 1px solid var(--border);
+    color: var(--text);
+    text-align: left;
+    padding: 9px 13px;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.45;
+    width: 100%;
+    transition: background 0.1s, border-color 0.1s;
+  }
+  button.example-q:hover, button.followup-q:hover {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+  }
+
+  /* Figures */
+  .fact-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+  }
+  .fact-card h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 6px;
+  }
+  .fact-card .intro {
+    color: var(--text-muted);
+    font-size: 14px;
+    margin: 0 0 14px;
+  }
+  .fact-plot { width: 100%; min-height: 280px; }
+  .fact-placeholder {
+    background: var(--surface-subtle);
+    border: 1px dashed var(--border-strong);
+    border-radius: 8px;
+    padding: 28px 18px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+  .fact-source {
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .fact-questions { margin-top: 14px; }
+  .fact-questions > div {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+  .fact-questions ul { list-style: none; padding: 0; margin: 0; }
+  .fact-questions li { margin: 6px 0; }
+
+  /* Answer view */
+  .answer-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px 24px;
+    box-shadow: var(--shadow);
+    margin-top: 12px;
+  }
+  .answer-question {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin: 0 0 4px;
+  }
+  .answer-question-body {
+    font-size: 17px;
+    font-weight: 500;
+    margin: 0 0 18px;
+    color: var(--text);
+  }
+  .answer-body {
+    font-size: 16px;
+    line-height: 1.65;
+    color: var(--text);
+    white-space: pre-wrap;
+  }
+  .answer-body sup.cite {
+    display: inline-block;
+    margin: 0 2px;
+    padding: 1px 5px;
+    font-size: 11px;
+    font-weight: 600;
+    background: var(--accent-soft);
+    color: var(--accent-dark);
+    border-radius: 4px;
+    cursor: pointer;
+    vertical-align: top;
+    line-height: 1.4;
+    user-select: none;
+  }
+  .answer-body sup.cite:hover { background: var(--accent); color: white; }
+  .answer-body sup.cite.active { background: var(--accent); color: white; }
+
+  .citations {
+    margin-top: 22px;
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+  }
+  .citations h4 {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--text-muted);
+    margin: 0 0 10px;
+  }
+  .citation {
+    background: var(--surface-subtle);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    transition: box-shadow 0.15s;
+  }
+  .citation.highlight { box-shadow: 0 0 0 2px var(--accent); }
+  .citation .meta {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: baseline;
+    margin-bottom: 2px;
+  }
+  .citation .n {
+    font-weight: 700;
+    color: var(--accent-dark);
+    background: white;
+    padding: 0px 7px;
+    border-radius: 4px;
+    font-size: 12px;
+  }
+  .citation .doc { color: var(--text); font-weight: 500; }
+  .citation .page { color: var(--text-muted); }
+  .citation .note { color: var(--text-muted); font-style: italic; margin-left: auto; }
+  .citation .snippet {
+    color: var(--text-muted);
+    font-size: 12px;
+    margin: 4px 0 0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    line-height: 1.45;
+  }
+
+  .followups {
+    margin-top: 20px;
+  }
+  .followups h4 {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--text-muted);
+    margin: 0 0 10px;
+  }
+  .followups ul { list-style: none; padding: 0; margin: 0; }
+  .followups li { margin-bottom: 6px; }
+
+  /* Loading / errors / footer */
+  .loading {
+    color: var(--text-muted);
+    text-align: center;
+    padding: 28px 10px;
+    font-size: 14px;
+  }
+  .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .error {
+    background: #FDECEC;
+    border: 1px solid #F4BFBF;
+    color: #7A1818;
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-top: 14px;
+  }
+
+  .back-link {
+    display: inline-block;
+    margin: 14px 0 0;
+    font-size: 14px;
+  }
+
+  footer.site {
+    max-width: 860px;
+    margin: 40px auto 0;
+    padding: 20px 24px 30px;
+    font-size: 12px;
+    color: var(--text-muted);
+    border-top: 1px solid var(--border);
+  }
+
+  @media (max-width: 520px) {
+    header.site { padding: 20px 18px 4px; }
+    main { padding: 14px 18px 60px; }
+    form.ask { padding: 14px 16px; }
+    form.ask .row { flex-direction: column; align-items: stretch; }
+    form.ask button.submit { width: 100%; }
+    .answer-wrap { padding: 18px 16px; }
+  }
+</style>
+</head>
+<body>
+<header class="site">
+  <h1>Apotek &amp; legemidler — spør om kildene</h1>
+  <p class="tagline">Norske rapporter om apotek, legemidler, fastlege og pasienterfaringer. Svar med sidehenvisninger.</p>
+</header>
+
+<main id="main">
+  <form class="ask" id="ask-form" autocomplete="off">
+    <textarea id="q" placeholder="Still et spørsmål om apotek, legemiddelbruk, pasienttilfredshet, polyfarmasi …"></textarea>
+    <div class="row">
+      <div class="hint">Enter sender • Shift+Enter = linjeskift</div>
+      <button class="submit" type="submit">Spør</button>
+    </div>
+  </form>
+
+  <div id="view"></div>
+</main>
+
+<footer class="site">
+  Kildene er offentlige rapporter fra FHI, OECD, Riksrevisjonen, Helsetilsynet, Pasientsikkerhetsprogrammet, DMP, Apotekforeningen og PGEU, samt to systematiske oversikter fra BMJ Open og Annals of Pharmacotherapy. Svarene genereres av Claude basert på utdrag fra disse, med inline kildehenvisninger.
+</footer>
+
+<script>
+  // ---------- config ----------
+  // If you deploy this on a domain that can't read anvil.app's cookies, no
+  // change is needed — the endpoints are CORS-enabled.
+  const API_BASE = "https://apotek-bakgrunn.anvil.app/_/api";
+
+  // If you want to hardcode the key (recommended for a public site), replace
+  // "REPLACE_WITH_PUBLIC_KEY" with the value of Anvil secret API_KEY_PUBLIC.
+  // Otherwise the site falls back to localStorage and shows a setup prompt
+  // on first load.
+  const API_KEY_BUILT_IN = "REPLACE_WITH_PUBLIC_KEY";
+  const LS_KEY = "apotek-qa:api-key";
+  function getApiKey() {
+    if (API_KEY_BUILT_IN && API_KEY_BUILT_IN !== "REPLACE_WITH_PUBLIC_KEY") {
+      return API_KEY_BUILT_IN;
+    }
+    return localStorage.getItem(LS_KEY) || "";
+  }
+
+  // ---------- state ----------
+  const view = document.getElementById("view");
+  const form = document.getElementById("ask-form");
+  const q = document.getElementById("q");
+  const submitBtn = form.querySelector("button.submit");
+
+  let examplesCache = null;
+  let factsCache = null;
+
+  // ---------- api helpers ----------
+  async function api(path, init = {}) {
+    const key = getApiKey();
+    if (!key) throw new Error("no_api_key");
+    const headers = Object.assign({ "X-API-Key": key }, init.headers || {});
+    if (init.body && !(init.body instanceof FormData)) {
+      headers["Content-Type"] = "application/json; charset=utf-8";
+    }
+    const resp = await fetch(API_BASE + path, Object.assign({}, init, { headers }));
+    if (!resp.ok) {
+      let detail = "";
+      try { detail = (await resp.json()).error || ""; } catch (_) {}
+      throw new Error(`HTTP ${resp.status}${detail ? ": " + detail : ""}`);
+    }
+    return resp.json();
+  }
+
+  async function fetchExamples() {
+    if (examplesCache) return examplesCache;
+    const d = await api("/examples");
+    examplesCache = d.groups || [];
+    return examplesCache;
+  }
+  async function fetchFacts() {
+    if (factsCache) return factsCache;
+    const d = await api("/facts");
+    factsCache = d.facts || [];
+    return factsCache;
+  }
+  function askQuestion(question) {
+    return api("/ask", { method: "POST", body: JSON.stringify({ question }) });
+  }
+
+  // ---------- rendering ----------
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]
+    );
+  }
+
+  function renderAnswerText(text, maxN) {
+    // Replace [1], [2], ... with superscript chips; ignore [N] where N > maxN.
+    const esc = escapeHtml(text);
+    return esc.replace(/\[(\d+)\]/g, (m, nStr) => {
+      const n = parseInt(nStr, 10);
+      if (!n || n < 1 || n > maxN) return m;
+      return `<sup class="cite" data-n="${n}" title="Se kilde ${n}">${n}</sup>`;
+    });
+  }
+
+  function renderSetup(initialError) {
+    view.innerHTML = `
+      <div class="answer-wrap">
+        <p class="answer-question">Førstegangsoppsett</p>
+        <p class="answer-question-body">Denne siden trenger en API-nøkkel for å snakke med tjenesten.</p>
+        <p style="color: var(--text-muted); font-size: 14px;">
+          Lim inn verdien fra Anvil-secreten <code>API_KEY_PUBLIC</code>. Nøkkelen lagres lokalt i nettleseren din (localStorage).
+        </p>
+        <form id="setup-form" style="margin-top: 14px;">
+          <input type="text" id="setup-key" autocomplete="off" placeholder="API-nøkkel"
+            style="width: 100%; padding: 10px 12px; font-size: 15px; border: 1px solid var(--border-strong); border-radius: 8px; font-family: ui-monospace, monospace;"/>
+          <button class="submit" type="submit" style="margin-top: 10px; background: var(--accent); color: white; border: none; padding: 10px 22px; font-size: 15px; border-radius: 8px; cursor: pointer;">Lagre</button>
+        </form>
+        ${initialError ? `<div class="error" style="margin-top: 14px;">${escapeHtml(initialError)}</div>` : ""}
+      </div>
+    `;
+    const f = document.getElementById("setup-form");
+    f.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const v = document.getElementById("setup-key").value.trim();
+      if (!v) return;
+      localStorage.setItem(LS_KEY, v);
+      renderHome();
+    });
+    document.getElementById("setup-key").focus();
+  }
+
+  function renderHome() {
+    if (!getApiKey()) { renderSetup(); return; }
+    view.innerHTML = `
+      <section id="examples-section">
+        <h2>Eksempelspørsmål</h2>
+        <div id="examples-list"><div class="loading"><span class="spinner"></span> Laster eksempler …</div></div>
+      </section>
+      <section id="facts-section">
+        <h2>Tall og figurer</h2>
+        <div id="facts-list"><div class="loading"><span class="spinner"></span> Laster figurer …</div></div>
+      </section>
+    `;
+    loadExamples();
+    loadFacts();
+  }
+
+  function maybeAuthError(msg) {
+    if (msg && msg.indexOf("401") !== -1) {
+      localStorage.removeItem(LS_KEY);
+      renderSetup("API-nøkkelen ble avvist (401). Lim inn en gyldig nøkkel.");
+      return true;
+    }
+    if (msg === "no_api_key") {
+      renderSetup();
+      return true;
+    }
+    return false;
+  }
+
+  async function loadExamples() {
+    const container = document.getElementById("examples-list");
+    try {
+      const groups = await fetchExamples();
+      if (!groups.length) {
+        container.innerHTML = '<div class="error">Ingen eksempelspørsmål funnet.</div>';
+        return;
+      }
+      container.innerHTML = groups.map(g => `
+        <div class="examples-group">
+          <h3>${escapeHtml(g.group || "")}</h3>
+          ${g.description ? `<p class="desc">${escapeHtml(g.description)}</p>` : ""}
+          <ul>
+            ${(g.questions || []).map(q => `
+              <li><button class="example-q" data-q="${escapeHtml(q)}">${escapeHtml(q)}</button></li>
+            `).join("")}
+          </ul>
+        </div>
+      `).join("");
+    } catch (e) {
+      if (maybeAuthError(e.message)) return;
+      container.innerHTML = `<div class="error">Kunne ikke laste eksempler: ${escapeHtml(e.message)}</div>`;
+    }
+  }
+
+  async function loadFacts() {
+    const container = document.getElementById("facts-list");
+    try {
+      const facts = await fetchFacts();
+      if (!facts.length) {
+        container.innerHTML = '<div class="error">Ingen figurer tilgjengelig ennå.</div>';
+        return;
+      }
+      container.innerHTML = facts.map(f => `
+        <div class="fact-card" data-fact-id="${escapeHtml(f.id)}">
+          <h3>${escapeHtml(f.title || "")}</h3>
+          ${f.intro ? `<p class="intro">${escapeHtml(f.intro)}</p>` : ""}
+          <div class="fact-plot" id="plot-${escapeHtml(f.id)}"></div>
+          ${f.source ? `<div class="fact-source">
+            Kilde: ${escapeHtml(f.source.document || "")}${f.source.page != null ? ", s. " + f.source.page : ""}
+          </div>` : ""}
+          ${(f.questions && f.questions.length) ? `
+            <div class="fact-questions">
+              <div>Still et spørsmål om denne figuren:</div>
+              <ul>${f.questions.map(q => `
+                <li><button class="example-q" data-q="${escapeHtml(q)}">${escapeHtml(q)}</button></li>
+              `).join("")}</ul>
+            </div>` : ""}
+        </div>
+      `).join("");
+      // Plot each chart (defer until Plotly ready)
+      facts.forEach(f => renderPlot(f));
+    } catch (e) {
+      if (maybeAuthError(e.message)) return;
+      container.innerHTML = `<div class="error">Kunne ikke laste figurer: ${escapeHtml(e.message)}</div>`;
+    }
+  }
+
+  function renderPlot(fact) {
+    const el = document.getElementById("plot-" + fact.id);
+    if (!el) return;
+    const series = (fact.series || []).filter(s => s && s.points && s.points.length);
+    const hasValues = series.some(s => s.points.some(p => Array.isArray(p) && p[1] != null));
+    if (!hasValues) {
+      el.outerHTML = `<div class="fact-placeholder">Tall ennå ikke fylt inn for denne figuren. Se kildedokumentet.</div>`;
+      return;
+    }
+    const ready = () => {
+      if (typeof Plotly === "undefined") { setTimeout(ready, 80); return; }
+      const type = fact.chart_type || "bar";
+      const traces = series.map(s => {
+        const xs = s.points.filter(p => p[1] != null).map(p => p[0]);
+        const ys = s.points.filter(p => p[1] != null).map(p => p[1]);
+        if (type === "line") {
+          return { x: xs, y: ys, type: "scatter", mode: "lines+markers", name: s.name || "" };
+        }
+        return { x: xs, y: ys, type: "bar", name: s.name || "" };
+      });
+      const layout = {
+        margin: { t: 10, r: 10, b: 48, l: 56 },
+        xaxis: { title: fact.x_label || "" },
+        yaxis: { title: fact.y_label || "" },
+        font: { family: "-apple-system, Segoe UI, Roboto, sans-serif", size: 12, color: "#1A2332" },
+        paper_bgcolor: "transparent",
+        plot_bgcolor: "transparent",
+        barmode: type === "grouped-bar" ? "group" : (type === "stacked-bar" ? "stack" : undefined),
+        legend: { orientation: "h", y: -0.2 },
+      };
+      Plotly.newPlot(el, traces, layout, { displayModeBar: false, responsive: true });
+    };
+    ready();
+  }
+
+  function renderAnswer(question, data) {
+    const citations = data.citations || [];
+    const maxN = Math.max(0, ...citations.map(c => c.n || 0));
+    const answerHtml = renderAnswerText(data.answer || "", maxN);
+
+    view.innerHTML = `
+      <div class="answer-wrap">
+        <p class="answer-question">Spørsmål</p>
+        <p class="answer-question-body">${escapeHtml(question)}</p>
+        <div class="answer-body">${answerHtml}</div>
+        ${citations.length ? `
+          <div class="citations">
+            <h4>Kilder</h4>
+            ${citations.map(c => `
+              <div class="citation" id="cite-${c.n}">
+                <div class="meta">
+                  <span class="n">${c.n}</span>
+                  <span class="doc">${escapeHtml(c.document || "")}</span>
+                  ${c.page != null ? `<span class="page">s. ${escapeHtml(c.page)}</span>` : ""}
+                  ${c.section ? `<span class="page">· ${escapeHtml(c.section)}</span>` : ""}
+                  ${c.note ? `<span class="note">${escapeHtml(c.note)}</span>` : ""}
+                </div>
+                ${c.snippet ? `<p class="snippet">${escapeHtml(c.snippet)}</p>` : ""}
+              </div>
+            `).join("")}
+          </div>
+        ` : ""}
+        ${(data.suggested_followups && data.suggested_followups.length) ? `
+          <div class="followups">
+            <h4>Grav videre</h4>
+            <ul>
+              ${data.suggested_followups.map(q => `
+                <li><button class="followup-q" data-q="${escapeHtml(q)}">${escapeHtml(q)}</button></li>
+              `).join("")}
+            </ul>
+          </div>
+        ` : ""}
+        <a href="#" class="back-link" id="back-link">← Still et nytt spørsmål</a>
+      </div>
+    `;
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function showLoading(question) {
+    view.innerHTML = `
+      <div class="answer-wrap">
+        <p class="answer-question">Spørsmål</p>
+        <p class="answer-question-body">${escapeHtml(question)}</p>
+        <div class="loading"><span class="spinner"></span> Leser kildene og formulerer svar … (tar typisk 5–15 sekunder)</div>
+      </div>
+    `;
+  }
+
+  function showError(msg) {
+    view.innerHTML = `<div class="error">${escapeHtml(msg)}</div><a href="#" class="back-link" id="back-link">← Tilbake</a>`;
+  }
+
+  async function submit(question) {
+    if (!question) return;
+    q.value = question;
+    submitBtn.disabled = true;
+    showLoading(question);
+    try {
+      const data = await askQuestion(question);
+      renderAnswer(question, data);
+    } catch (e) {
+      if (maybeAuthError(e.message)) return;
+      showError("Beklager — noe gikk galt: " + e.message);
+    } finally {
+      submitBtn.disabled = false;
+    }
+  }
+
+  // ---------- events ----------
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    submit(q.value.trim());
+  });
+
+  q.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      form.requestSubmit();
+    }
+  });
+
+  // Delegate: example-q, followup-q, citation chip, back link
+  document.addEventListener("click", (e) => {
+    const ex = e.target.closest("button.example-q, button.followup-q");
+    if (ex) {
+      const question = ex.getAttribute("data-q") || ex.textContent.trim();
+      submit(question);
+      return;
+    }
+    const cite = e.target.closest("sup.cite");
+    if (cite) {
+      const n = cite.getAttribute("data-n");
+      const el = document.getElementById("cite-" + n);
+      if (el) {
+        document.querySelectorAll(".citation.highlight").forEach(x => x.classList.remove("highlight"));
+        el.classList.add("highlight");
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+      return;
+    }
+    if (e.target.id === "back-link") {
+      e.preventDefault();
+      q.value = "";
+      renderHome();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      q.focus();
+      return;
+    }
+  });
+
+  // ---------- init ----------
+  renderHome();
+</script>
+</body>
+</html>
