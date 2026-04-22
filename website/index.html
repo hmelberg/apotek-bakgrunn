@@ -178,6 +178,12 @@
     font-size: 12px;
     color: var(--text-muted);
   }
+  .fact-source-note {
+    margin-top: 3px;
+    font-style: italic;
+    font-size: 11.5px;
+    opacity: 0.85;
+  }
   .fact-questions { margin-top: 14px; }
   .fact-questions > div {
     font-size: 13px;
@@ -541,7 +547,8 @@
           ${f.intro ? `<p class="intro">${escapeHtml(f.intro)}</p>` : ""}
           <div class="fact-plot" id="plot-${escapeHtml(f.id)}"></div>
           ${f.source ? `<div class="fact-source">
-            Kilde: ${escapeHtml(f.source.document || "")}${f.source.page != null ? ", s. " + f.source.page : ""}
+            Kilde: ${escapeHtml(f.source.document || "")}${f.source.sheet ? ` — ark «${escapeHtml(f.source.sheet)}»` : ""}${f.source.page != null ? ", s. " + f.source.page : ""}
+            ${f.source.note ? `<div class="fact-source-note">${escapeHtml(f.source.note)}</div>` : ""}
           </div>` : ""}
           ${(f.questions && f.questions.length) ? `
             <div class="fact-questions">
